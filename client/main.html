@@ -13,22 +13,31 @@
 
 <template name="app">
   <div class="row">
-    {{> form}}
+    {{> loginButtons}}
   </div>
-  <div class="row">
-    {{> cards}}
-  </div>
+
+  {{#if currentUser}}
+    <div class="row">
+      {{> form}}
+    </div>
+  {{/if}}
+  
+  {{#if Template.subscriptionsReady}}
+    <div class="row">
+      {{> cards}}
+    </div>
+  {{/if}}
 </template>
 
 <template name="form">
   <form class="form-inline">
     <div class="form-group">
       <label class="sr-only" for="server-name">Server Name</label>
-      <input type="text" class="form-control" id="server-name" placeholder="Server Name">
+      <input type="text" class="form-control" id="server-name" name="server" placeholder="Server Name">
     </div>
     <div class="form-group">
       <label class="sr-only" for="userId">User ID</label>
-      <input type="text" class="form-control" id="userId" placeholder="User ID">
+      <input type="text" class="form-control" id="userId" name="userId" placeholder="User ID">
     </div>
     <button type="submit" class="btn btn-primary">Subscribe</button>
   </form>
