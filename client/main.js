@@ -6,6 +6,8 @@ Pieces = {};
 PiecesHandle = {};
 LocalPieces = new Mongo.Collection(null);
 
+Connections = {};
+
 // var lists = [
 //   {server: "piece.meteor.com", userId: [
 //     "hocm8Cd3SjztwtiBr",
@@ -21,9 +23,9 @@ var connect = function (lists) {
   console.log("subs:", lists);
   _.each(lists, function (list) {
     console.log("connect:", list.server, list.userId);
-    let connection = DDP.connect(`http://${list.server}`);
-    Pieces[`${list.server}`] = new Mongo.Collection('pieces', {connection: connection});
-    PiecesHandle[`${list.server}`] = connection.subscribe("pieceMultiUserPosts", list.userId);
+    Connections[`${list.server}`] = DDP.connect(`http://${list.server}`);
+    Pieces[`${list.server}`] = new Mongo.Collection('pieces', {connection: Connections[`${list.server}`]});
+    PiecesHandle[`${list.server}`] = Connections[`${list.server}`].subscribe("pieceMultiUserPosts", list.userId);
   });
 };
 
@@ -77,6 +79,33 @@ Template.form.events({
 
     if (! Meteor.userId()) {
       throw new Meteor.Error("not-authorized", "Log in before subscribe.");
+    }
+
+    if (! Connections[`${server}`]) {
+      console.log("connect:", server, userId);
+      Connections[`${server}`] = DDP.connect(`http://${server}`);
+      Pieces[`${server}`] = new Mongo.Collection('pieces', {connection: Connections[`${server}`]});
+      PiecesHandle[`${server}`] = Connections[`${server}`].subscribe("pieceSingleUserPosts", userId);
+
+      Tracker.autorun(function () {
+        if (PiecesHandle[`${server}`].ready()) {
+          console.log("subscribe of", server, PiecesHandle[`${server}`].ready());
+          let cursor = Pieces[server].find();
+          let cursorHandle = cursor.observeChanges({
+            added: function (id, piece) {
+              console.log("added:", id, piece);
+              piece._id = id;
+              LocalPieces.insert(piece);
+            },
+            removed: function (id) {
+              console.log("removed:", id);
+              LocalPieces.remove(id);
+            }
+          });
+        }
+      })
+    } else {
+      Connections[`${server}`].subscribe("pieceSingleUserPosts", userId);
     }
 
     Meteor.call('subInsert', server, userId);
