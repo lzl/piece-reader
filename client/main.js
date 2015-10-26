@@ -77,11 +77,44 @@ Template.cards.helpers({
   }
 });
 
+Template.form.onRendered(function () {
+  $("#subscribe").validate({
+    rules: {
+      url: {
+        required: true,
+        url: true
+      },
+      userId: {
+        required: true,
+        rangelength: [17, 17]
+      }
+    },
+    messages: {
+      userId: {
+        rangelength: "Please enter a valid user ID."
+      }
+    }
+  });
+});
+
+// via http://jsperf.com/url-parsing
+var urlParse = function (url) {
+  let urlParseRE = /^(((([^:\/#\?]+:)?(?:(\/\/)((?:(([^:@\/#\?]+)(?:\:([^:@\/#\?]+))?)@)?(([^:\/#\?\]\[]+|\[[^\/\]@#?]+\])(?:\:([0-9]+))?))?)?)?((\/?(?:[^\/\?#]+\/+)*)([^\?#]*)))?(\?[^#]+)?)(#.*)?/;
+  let matches = urlParseRE.exec(url);
+  let server = matches[10];
+  if (server === undefined) {
+    throw new Meteor.Error("undefined", "Server name is undefined.");
+  } else {
+    return server;
+  }
+}
+
 Template.form.events({
   'submit form': function (event, template) {
     event.preventDefault();
-    let server = event.target.server.value;
-    let userId = event.target.userId.value;
+    let url = template.find("[name='url']").value;
+    let server = urlParse(url).toLowerCase();
+    let userId = template.find("[name='userId']").value;
 
     if (! Meteor.userId()) {
       throw new Meteor.Error("not-authorized", "Log in before subscribe.");
@@ -95,8 +128,8 @@ Template.form.events({
     }
 
     Meteor.call('subInsert', server, userId);
+    console.log("sub inserted:", server, userId);
 
-    event.target.server.value = '';
-    event.target.userId.value = '';
+    document.getElementById("subscribe").reset();
   }
 });

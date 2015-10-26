@@ -22,3 +22,4 @@ ecmascript              # Enable ECMAScript2015+ syntax in app code
 check
 accounts-password
 accounts-ui
+themeteorchef:jquery-validation

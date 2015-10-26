@@ -33,14 +33,14 @@
 </template>
 
 <template name="form">
-  <form class="form-inline">
+  <form id="subscribe" class="form-inline">
     <div class="form-group">
-      <label class="sr-only" for="server-name">Server Name</label>
-      <input type="text" class="form-control" id="server-name" name="server" placeholder="Server Name">
+      <label class="sr-only" for="url">URL</label>
+      <input type="text" class="form-control" id="url" name="url" placeholder="URL" required>
     </div>
     <div class="form-group">
       <label class="sr-only" for="userId">User ID</label>
-      <input type="text" class="form-control" id="userId" name="userId" placeholder="User ID">
+      <input type="text" class="form-control" id="userId" name="userId" placeholder="User ID" required>
     </div>
     <button type="submit" class="btn btn-primary">Subscribe</button>
   </form>
