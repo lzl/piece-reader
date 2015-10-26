@@ -6,6 +6,7 @@
 </head>
 
 <body>
+  <div class="hr"></div>
   <div class="container">
     {{> app}}
   </div>
@@ -14,18 +15,20 @@
 <template name="app">
   <div class="row">
     {{> loginButtons}}
+    <div class="hr"></div>
   </div>
 
   {{#if currentUser}}
     <div class="row">
       {{> form}}
     </div>
-  {{/if}}
-  
-  {{#if Template.subscriptionsReady}}
-    <div class="row">
-      {{> cards}}
-    </div>
+
+    {{#if Template.subscriptionsReady}}
+      <div class="row">
+        {{> cards}}
+      </div>
+    {{/if}}
+
   {{/if}}
 </template>
 
@@ -41,6 +44,8 @@
     </div>
     <button type="submit" class="btn btn-primary">Subscribe</button>
   </form>
+
+  <div class="hr"></div>
 </template>
 
 <template name="cards">
