@@ -71,8 +71,28 @@ Template.cards.onCreated(function () {
   });
 });
 
+Template.cards.onDestroyed(function () {
+  Connections = {};
+  Collections = {};
+  Subscriptions = {};
+  Pieces.remove({});
+});
+
+Template.demo.onDestroyed(function () {
+  Connections = {};
+  Collections = {};
+  Subscriptions = {};
+  Pieces.remove({});
+});
+
 Template.cards.helpers({
-  cards: function () {
+  cards() {
+    return Pieces.find({}, {sort: {createdAt: -1}});
+  }
+});
+
+Template.demo.helpers({
+  cards() {
     return Pieces.find({}, {sort: {createdAt: -1}});
   }
 });
@@ -109,6 +129,15 @@ var urlParse = function (url) {
   }
 }
 
+var subscribeViaForm = function (server, userId) {
+  if (! Connections[server]) {
+    connect(server, userId);
+    observe(Subscriptions[server], server);
+  } else {
+    Connections[server].subscribe("pieceSingleUserPosts", userId);
+  }
+}
+
 Template.form.events({
   'submit form': function (event, template) {
     event.preventDefault();
@@ -116,20 +145,34 @@ Template.form.events({
     let server = urlParse(url).toLowerCase();
     let userId = template.find("[name='userId']").value;
 
-    if (! Meteor.userId()) {
-      throw new Meteor.Error("not-authorized", "Log in before subscribe.");
-    }
+    subscribeViaForm(server, userId);
 
-    if (! Connections[server]) {
-      connect(server, userId);
-      observe(Subscriptions[server], server);
-    } else {
-      Connections[server].subscribe("pieceSingleUserPosts", userId);
+    if (Meteor.userId()) {
+      Meteor.call('subInsert', server, userId);
+      console.log("sub inserted:", server, userId);
     }
-
-    Meteor.call('subInsert', server, userId);
-    console.log("sub inserted:", server, userId);
 
     document.getElementById("subscribe").reset();
+  }
+});
+
+Template.hero.onCreated(function () {
+  let instance = this;
+  instance.subscribed = new ReactiveVar(false);
+});
+
+Template.hero.helpers({
+  subscribed() {
+    return Template.instance().subscribed.get();
+  }
+})
+
+Template.hero.events({
+  'click [data-action=subscribe]': function (event, template) {
+    event.preventDefault();
+    let server = "piece.meteor.com";
+    let userId = "492WZqeqCxrDqfG5u";
+    subscribeViaForm(server, userId);
+    template.subscribed.set(true);
   }
 });
