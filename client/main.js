@@ -3,10 +3,10 @@ Accounts.ui.config({
 });
 
 Connections = {};
-Collections = {}; // Pieces
-Subscriptions = {}; // PiecesHandle
+Collections = {};
+Subscriptions = {};
 
-Pieces = new Mongo.Collection(null); // LocalPieces
+Pieces = new Mongo.Collection(null); // Local collection
 
 // var lists = [
 //   {server: "piece.meteor.com", userId: [
@@ -19,50 +19,56 @@ Pieces = new Mongo.Collection(null); // LocalPieces
 //   ]}
 // ];
 
-var connect = function (lists) {
-  console.log("subs:", lists);
-  _.each(lists, function (list) {
-    console.log("connect:", list.server, list.userId);
-    Connections[list.server] = DDP.connect(`http://${list.server}`);
-    Collections[list.server] = new Mongo.Collection('pieces', {connection: Connections[list.server]});
-    Subscriptions[list.server] = Connections[list.server].subscribe("pieceMultiUserPosts", list.userId);
-  });
+var connect = function (server, userId) {
+  console.log("connect:", server, userId);
+  Connections[server] = DDP.connect(`http://${server}`);
+  Collections[server] = new Mongo.Collection('pieces', {connection: Connections[server]});
+  if (userId.constructor === Array) {
+    Subscriptions[server] = Connections[server].subscribe("pieceMultiUserPosts", userId);
+  } else {
+    Subscriptions[server] = Connections[server].subscribe("pieceSingleUserPosts", userId);
+  }
 };
 
-var observe = function () {
-  console.log("observation begins");
-  _.each(Subscriptions, function (handle, server) {
-    Tracker.autorun(function () {
-      if (handle.ready()) {
-        console.log("subscribe of", server, handle.ready());
-        let cursor = Collections[server].find();
-        let cursorHandle = cursor.observeChanges({
-          added: function (id, piece) {
-            console.log("added:", id, piece);
-            piece._id = id;
-            Pieces.insert(piece);
-          },
-          removed: function (id) {
-            console.log("removed:", id);
-            Pieces.remove(id);
-          }
-        });
-      }
-    })
-  });
+var observe = function (handle, server) {
+  Tracker.autorun(function () {
+    if (handle.ready()) {
+      console.log("subscription from", server, "is ready");
+      let cursor = Collections[server].find();
+      let cursorHandle = cursor.observeChanges({
+        added: function (id, piece) {
+          console.log("added:", id, piece);
+          piece._id = id;
+          Pieces.insert(piece);
+        },
+        removed: function (id) {
+          console.log("removed:", id);
+          Pieces.remove(id);
+        }
+      });
+    }
+  })
 }
 
 Template.app.onCreated(function () {
   this.subscribe('pieceCurrentUserSubs');
-  console.log('subscribe pieceCurrentUserSubs');
+  console.log('subscribed pieceCurrentUserSubs publication');
 });
 
 Template.cards.onCreated(function () {
-  console.log('cards rendered')
-  let listsCursor = Subs.find({ownerId: Meteor.userId()});
+  console.log('created cards template')
+  let listsCursor = Subs.find();
   let lists = listsCursor.fetch();
-  connect(lists);
-  observe();
+
+  console.log("subs:", lists);
+  _.each(lists, function (list) {
+    connect(list.server, list.userId);
+  });
+
+  console.log("observation begins");
+  _.each(Subscriptions, function (handle, server) {
+    observe(handle, server);
+  });
 });
 
 Template.cards.helpers({
@@ -82,30 +88,10 @@ Template.form.events({
     }
 
     if (! Connections[server]) {
-      console.log("connect:", server, userId);
-      Connections[server] = DDP.connect(`http://${server}`);
-      Collections[server] = new Mongo.Collection('pieces', {connection: Connections[server]});
-      Subscriptions[server] = Connections[server].subscribe("pieceSingleUserPosts", userId);
-
-      Tracker.autorun(function () {
-        if (Subscriptions[server].ready()) {
-          console.log("subscribe of", server, Subscriptions[server].ready());
-          let cursor = Collections[server].find();
-          let cursorHandle = cursor.observeChanges({
-            added: function (id, piece) {
-              console.log("added:", id, piece);
-              piece._id = id;
-              Pieces.insert(piece);
-            },
-            removed: function (id) {
-              console.log("removed:", id);
-              Pieces.remove(id);
-            }
-          });
-        }
-      })
+      connect(server, userId);
+      observe(Subscriptions[server], server);
     } else {
-      Connections[`${server}`].subscribe("pieceSingleUserPosts", userId);
+      Connections[server].subscribe("pieceSingleUserPosts", userId);
     }
 
     Meteor.call('subInsert', server, userId);
