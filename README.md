@@ -1,5 +1,3 @@
-## v0.1, 2015-10-26
-
 This is a sub-project of [Piece](https://github.com/lzl/piece).
 
 With Piece Reader, you can follow and read pieces which were published by other users.

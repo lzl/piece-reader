@@ -20,7 +20,10 @@ ecmascript              # Enable ECMAScript2015+ syntax in app code
 # insecure                # Allow all DB writes from clients (for prototyping)
 
 check
+audit-argument-checks
 accounts-password
 accounts-ui
 themeteorchef:jquery-validation
 reactive-var
+force-ssl
+browser-policy

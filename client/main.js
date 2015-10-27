@@ -24,7 +24,7 @@ Pieces = new Mongo.Collection(null); // Local collection
 
 var connect = function (hostname, userId) {
   console.log("connect:", hostname, userId);
-  Connections[hostname] = DDP.connect(`http://${hostname}`);
+  Connections[hostname] = DDP.connect(`https://${hostname}`);
   Collections[hostname] = new Mongo.Collection('pieces', {connection: Connections[hostname]});
   if (userId.constructor === Array) {
     Subscriptions[hostname] = Connections[hostname].subscribe("pieceMultiUserPosts", userId);
