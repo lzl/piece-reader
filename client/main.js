@@ -2,10 +2,13 @@ Accounts.ui.config({
   passwordSignupFields: "USERNAME_ONLY"
 });
 
-Connections = {};
-Collections = {};
-Subscriptions = {};
+var reset = function () {
+  Connections = Object.create(null);
+  Collections = Object.create(null);
+  Subscriptions = Object.create(null);
+};
 
+reset();
 Pieces = new Mongo.Collection(null); // Local collection
 
 // var lists = [
@@ -72,16 +75,12 @@ Template.cards.onCreated(function () {
 });
 
 Template.cards.onDestroyed(function () {
-  Connections = {};
-  Collections = {};
-  Subscriptions = {};
+  reset();
   Pieces.remove({});
 });
 
 Template.demo.onDestroyed(function () {
-  Connections = {};
-  Collections = {};
-  Subscriptions = {};
+  reset();
   Pieces.remove({});
 });
 
