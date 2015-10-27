@@ -1,6 +1,6 @@
 Meteor.methods({
-  subInsert: function (server, userId) {
-    check(server, String);
+  subInsert: function (hostname, userId) {
+    check(hostname, String);
     check(userId, String);
     let ownerId = Meteor.userId();
 
@@ -8,15 +8,15 @@ Meteor.methods({
       throw new Meteor.Error("not-authorized", "Log in before subscribe.");
     }
 
-    var exitedServer = !! Subs.findOne({ownerId: ownerId, server: server});
-    if (exitedServer) {
-      return Subs.update({ownerId: ownerId, server: server}, {
+    var exitedHostname = !! Subs.findOne({ownerId: ownerId, hostname: hostname});
+    if (exitedHostname) {
+      return Subs.update({ownerId: ownerId, hostname: hostname}, {
         $addToSet: {userId: userId}
       });
     } else {
       return Subs.insert({
         ownerId: ownerId,
-        server: server,
+        hostname: hostname,
         userId: [userId]
       })
     }
