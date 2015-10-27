@@ -117,14 +117,24 @@ Template.form.onRendered(function () {
 });
 
 // via http://jsperf.com/url-parsing
-var urlParse = function (url) {
-  let urlParseRE = /^(((([^:\/#\?]+:)?(?:(\/\/)((?:(([^:@\/#\?]+)(?:\:([^:@\/#\?]+))?)@)?(([^:\/#\?\]\[]+|\[[^\/\]@#?]+\])(?:\:([0-9]+))?))?)?)?((\/?(?:[^\/\?#]+\/+)*)([^\?#]*)))?(\?[^#]+)?)(#.*)?/;
-  let matches = urlParseRE.exec(url);
-  let hostname = matches[10];
-  if (hostname === undefined) {
-    throw new Meteor.Error("undefined", "Server name is undefined.");
+// var urlParse = function (url) {
+//   let urlParseRE = /^(((([^:\/#\?]+:)?(?:(\/\/)((?:(([^:@\/#\?]+)(?:\:([^:@\/#\?]+))?)@)?(([^:\/#\?\]\[]+|\[[^\/\]@#?]+\])(?:\:([0-9]+))?))?)?)?((\/?(?:[^\/\?#]+\/+)*)([^\?#]*)))?(\?[^#]+)?)(#.*)?/;
+//   let matches = urlParseRE.exec(url);
+//   let hostname = matches[10];
+//   if (hostname === undefined) {
+//     throw new Meteor.Error("undefined", "Server name is undefined.");
+//   } else {
+//     return hostname;
+//   }
+// }
+
+var hostnameParse = function (url) {
+  const urlParser = document.createElement('a');
+  urlParser.href = url;
+  if (urlParser.hostname === undefined) {
+    throw new Meteor.Error("undefined", "Hostname is undefined.");
   } else {
-    return hostname;
+    return urlParser.hostname;
   }
 }
 
@@ -141,7 +151,7 @@ Template.form.events({
   'submit form': function (event, template) {
     event.preventDefault();
     let url = template.find("[name='url']").value;
-    let hostname = urlParse(url).toLowerCase();
+    let hostname = hostnameParse(url).toLowerCase();
     let userId = template.find("[name='userId']").value;
 
     subscribeViaForm(hostname, userId);
