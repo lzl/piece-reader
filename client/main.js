@@ -12,32 +12,32 @@ reset();
 Pieces = new Mongo.Collection(null); // Local collection
 
 // var lists = [
-//   {server: "piece.meteor.com", userId: [
+//   {hostname: "piece.meteor.com", userId: [
 //     "hocm8Cd3SjztwtiBr",
 //     "492WZqeqCxrDqfG5u"
 //   ]},
-//   {server: "localhost:4000", userId: [
+//   {hostname: "localhost:4000", userId: [
 //     "X3oicwXho45xzmyc6",
 //     "iZY4CdELFN9eQv5sa"
 //   ]}
 // ];
 
-var connect = function (server, userId) {
-  console.log("connect:", server, userId);
-  Connections[server] = DDP.connect(`http://${server}`);
-  Collections[server] = new Mongo.Collection('pieces', {connection: Connections[server]});
+var connect = function (hostname, userId) {
+  console.log("connect:", hostname, userId);
+  Connections[hostname] = DDP.connect(`http://${hostname}`);
+  Collections[hostname] = new Mongo.Collection('pieces', {connection: Connections[hostname]});
   if (userId.constructor === Array) {
-    Subscriptions[server] = Connections[server].subscribe("pieceMultiUserPosts", userId);
+    Subscriptions[hostname] = Connections[hostname].subscribe("pieceMultiUserPosts", userId);
   } else {
-    Subscriptions[server] = Connections[server].subscribe("pieceSingleUserPosts", userId);
+    Subscriptions[hostname] = Connections[hostname].subscribe("pieceSingleUserPosts", userId);
   }
 };
 
-var observe = function (handle, server) {
+var observe = function (handle, hostname) {
   Tracker.autorun(function () {
     if (handle.ready()) {
-      console.log("subscription from", server, "is ready");
-      let cursor = Collections[server].find();
+      console.log("subscription from", hostname, "is ready");
+      let cursor = Collections[hostname].find();
       let cursorHandle = cursor.observeChanges({
         added: function (id, piece) {
           console.log("added:", id, piece);
@@ -65,12 +65,12 @@ Template.cards.onCreated(function () {
 
   console.log("subs:", lists);
   _.each(lists, function (list) {
-    connect(list.server, list.userId);
+    connect(list.hostname, list.userId);
   });
 
   console.log("observation begins");
-  _.each(Subscriptions, function (handle, server) {
-    observe(handle, server);
+  _.each(Subscriptions, function (handle, hostname) {
+    observe(handle, hostname);
   });
 });
 
@@ -120,20 +120,20 @@ Template.form.onRendered(function () {
 var urlParse = function (url) {
   let urlParseRE = /^(((([^:\/#\?]+:)?(?:(\/\/)((?:(([^:@\/#\?]+)(?:\:([^:@\/#\?]+))?)@)?(([^:\/#\?\]\[]+|\[[^\/\]@#?]+\])(?:\:([0-9]+))?))?)?)?((\/?(?:[^\/\?#]+\/+)*)([^\?#]*)))?(\?[^#]+)?)(#.*)?/;
   let matches = urlParseRE.exec(url);
-  let server = matches[10];
-  if (server === undefined) {
+  let hostname = matches[10];
+  if (hostname === undefined) {
     throw new Meteor.Error("undefined", "Server name is undefined.");
   } else {
-    return server;
+    return hostname;
   }
 }
 
-var subscribeViaForm = function (server, userId) {
-  if (! Connections[server]) {
-    connect(server, userId);
-    observe(Subscriptions[server], server);
+var subscribeViaForm = function (hostname, userId) {
+  if (! Connections[hostname]) {
+    connect(hostname, userId);
+    observe(Subscriptions[hostname], hostname);
   } else {
-    Connections[server].subscribe("pieceSingleUserPosts", userId);
+    Connections[hostname].subscribe("pieceSingleUserPosts", userId);
   }
 }
 
@@ -141,14 +141,14 @@ Template.form.events({
   'submit form': function (event, template) {
     event.preventDefault();
     let url = template.find("[name='url']").value;
-    let server = urlParse(url).toLowerCase();
+    let hostname = urlParse(url).toLowerCase();
     let userId = template.find("[name='userId']").value;
 
-    subscribeViaForm(server, userId);
+    subscribeViaForm(hostname, userId);
 
     if (Meteor.userId()) {
-      Meteor.call('subInsert', server, userId);
-      console.log("sub inserted:", server, userId);
+      Meteor.call('subInsert', hostname, userId);
+      console.log("sub inserted:", hostname, userId);
     }
 
     document.getElementById("subscribe").reset();
@@ -169,9 +169,9 @@ Template.hero.helpers({
 Template.hero.events({
   'click [data-action=subscribe]': function (event, template) {
     event.preventDefault();
-    let server = "piece.meteor.com";
+    let hostname = "piece.meteor.com";
     let userId = "492WZqeqCxrDqfG5u";
-    subscribeViaForm(server, userId);
+    subscribeViaForm(hostname, userId);
     template.subscribed.set(true);
   }
 });
