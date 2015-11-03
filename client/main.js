@@ -185,3 +185,50 @@ Template.hero.events({
     template.subscribed.set(true);
   }
 });
+
+Template.follow.onCreated(function () {
+  let hostname = FlowRouter.getQueryParam("hostname");
+  let userId = FlowRouter.getQueryParam("userId");
+  subscribeViaForm(hostname, userId);
+});
+
+Template.follow.helpers({
+  button() {
+    if (Meteor.user()) {
+      return "Follow";
+    } else {
+      return "Please sign in ↖";
+    }
+  },
+  disabled() {
+    if (! Meteor.user()) {
+      return "disabled";
+    }
+  },
+  URL() {
+    return "https://" + FlowRouter.getQueryParam("hostname");
+  },
+  userId() {
+    return FlowRouter.getQueryParam("userId");
+  },
+  lists() {
+    return Pieces.find({}, {sort: {createdAt: -1}});
+  }
+});
+
+Template.follow.events({
+  'submit form': function (event, template) {
+    event.preventDefault();
+    let url = template.find("[name='url']").value;
+    let hostname = hostnameParse(url).toLowerCase();
+    let userId = template.find("[name='userId']").value;
+
+    if (Meteor.userId()) {
+      Meteor.call('subInsert', hostname, userId, function (error, result) {
+        if (! error) {
+          FlowRouter.go("/");
+        }
+      });
+    }
+  }
+});

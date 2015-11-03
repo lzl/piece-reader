@@ -27,3 +27,5 @@ themeteorchef:jquery-validation
 reactive-var
 force-ssl
 browser-policy
+kadira:flow-router
+kadira:blaze-layout

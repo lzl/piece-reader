@@ -1,0 +1,33 @@
+<template name="follow">
+  <div class="hr"></div>
+  <div class="container">
+    <div class="row">
+      {{> loginButtons}}
+      <div class="hr"></div>
+    </div>
+
+    <div class="row">
+      <form id="subscribe" class="form-inline">
+        <div class="form-group">
+          <label class="sr-only" for="url">URL</label>
+          <input type="text" class="form-control" id="url" name="url" placeholder="{{URL}}" disabled>
+        </div>
+        <div class="form-group">
+          <label class="sr-only" for="userId">User ID</label>
+          <input type="text" class="form-control" id="userId" name="userId" placeholder="{{userId}}" disabled>
+        </div>
+        <button type="submit" class="btn btn-primary" {{disabled}}>{{button}}</button>
+      </form>
+
+      <div class="hr"></div>
+    </div>
+
+    <div class="row">
+      <ul class="list-group">
+        {{#each lists}}
+          <li class="list-group-item">{{content}}</li>
+        {{/each}}
+      </ul>
+    </div>
+  </div>
+</template>
