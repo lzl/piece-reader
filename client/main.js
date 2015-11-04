@@ -187,41 +187,54 @@ Template.hero.events({
 });
 
 Template.follow.onCreated(function () {
+  this.subscribe('pieceCurrentUserSubs');
+
   let hostname = FlowRouter.getQueryParam("hostname");
   let userId = FlowRouter.getQueryParam("userId");
   subscribeViaForm(hostname, userId);
 });
 
+Template.follow.onDestroyed(function () {
+  reset();
+  Pieces.remove({});
+});
+
 Template.follow.helpers({
-  button() {
-    if (Meteor.user()) {
-      return "Follow";
-    } else {
-      return "Please sign in ↖";
-    }
+  lists() {
+    return Pieces.find({}, {sort: {createdAt: -1}});
   },
-  disabled() {
-    if (! Meteor.user()) {
-      return "disabled";
-    }
+  hasList() {
+    return Pieces.findOne();
+  }
+});
+
+Template.formFollow.onCreated(function () {
+  this.unfollow = new ReactiveVar(false);
+});
+
+Template.formFollow.helpers({
+  following() {
+    let hostname = FlowRouter.getQueryParam("hostname");
+    let userId = FlowRouter.getQueryParam("userId");
+    return followed = Subs.findOne({hostname: hostname, userId: {$in: [userId]}});
+  },
+  unfollow() {
+    return Template.instance().unfollow.get();
   },
   URL() {
     return "https://" + FlowRouter.getQueryParam("hostname");
   },
   userId() {
     return FlowRouter.getQueryParam("userId");
-  },
-  lists() {
-    return Pieces.find({}, {sort: {createdAt: -1}});
   }
 });
 
-Template.follow.events({
-  'submit form': function (event, template) {
+Template.formFollow.events({
+  'click [data-action=follow]': function (event, template) {
     event.preventDefault();
-    let url = template.find("[name='url']").value;
-    let hostname = hostnameParse(url).toLowerCase();
-    let userId = template.find("[name='userId']").value;
+    let hostname = FlowRouter.getQueryParam("hostname");
+    let userId = FlowRouter.getQueryParam("userId");
+    console.log("follow", hostname, userId);
 
     if (Meteor.userId()) {
       Meteor.call('subInsert', hostname, userId, function (error, result) {
@@ -230,5 +243,21 @@ Template.follow.events({
         }
       });
     }
+  },
+  'click [data-action=unfollow]': function (event, template) {
+    event.preventDefault();
+    let hostname = FlowRouter.getQueryParam("hostname");
+    let userId = FlowRouter.getQueryParam("userId");
+    console.log("unfollow", hostname, userId);
+
+    if (Meteor.userId()) {
+      Meteor.call('subRemove', hostname, userId);
+    }
+  },
+  'mouseenter [data-action=following]': function (event, template) {
+    Template.instance().unfollow.set(true);
+  },
+  'mouseleave [data-action=unfollow]': function (event, template) {
+    Template.instance().unfollow.set(false);
   }
 });
