@@ -264,3 +264,17 @@ Template.formFollow.events({
     Template.instance().unfollow.set(false);
   }
 });
+
+Template.following.onCreated(function () {
+  this.subscribe('pieceCurrentUserSubs');
+  console.log('subscribed pieceCurrentUserSubs publication');
+});
+
+Template.following.helpers({
+  hasCard() {
+    return Subs.findOne();
+  },
+  cards() {
+    return Subs.find();
+  }
+});
