@@ -23,10 +23,16 @@
 
     <div class="row">
       {{#if currentUser}}
-        {{#if hasCard}}
-          {{#each cards}}
-            {{> cardFollowing}}
-          {{/each}}
+        {{#if Template.subscriptionsReady}}
+          {{#if hasCard}}
+            {{#each cards}}
+              {{> cardFollowing}}
+            {{/each}}
+          {{else}}
+            <ul class="list-group">
+              <li class="list-group-item">You have no following.</li>
+            </ul>
+          {{/if}}
         {{else}}
           <ul class="list-group">
             <li class="list-group-item">Fetching...</li>
