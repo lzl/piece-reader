@@ -41,9 +41,15 @@
 </template>
 
 <template name="cards">
-  {{#each cards}}
-    {{> card}}
-  {{/each}}
+  {{#if hasCard}}
+    {{#each cards}}
+      {{> card}}
+    {{/each}}
+  {{else}}
+    <ul class="list-group">
+      <li class="list-group-item">Fetching...</li>
+    </ul>
+  {{/if}}
 </template>
 
 <template name="card">

@@ -87,6 +87,9 @@ Template.demo.onDestroyed(function () {
 Template.cards.helpers({
   cards() {
     return Pieces.find({}, {sort: {createdAt: -1}});
+  },
+  hasCard() {
+    return Pieces.findOne();
   }
 });
 
