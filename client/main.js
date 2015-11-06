@@ -31,7 +31,11 @@ var observe = function (handle, hostname) {
         let cursor = Collections[hostname].find();
         let cursorHandle = cursor.observeChanges({
           added: function (id, piece) {
-            if (Pieces.findOne(id)) {
+            let existed = undefined;
+            Tracker.nonreactive(function () {
+              existed = Pieces.findOne(id);
+            })
+            if (existed) {
               console.log("found existed piece");
               return;
             } else {
