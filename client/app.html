@@ -1,106 +1,30 @@
 <template name="app">
-  <!-- <div class="hr"></div> -->
   <div class="container">
     <div class="row">
-      <nav class="navbar navbar-light">
-        <!-- <a class="navbar-brand" href="/">Piece Reader</a> -->
-        <ul class="nav navbar-nav">
-          <li class="nav-item">
-            <div class="nav-link">{{> loginButtons}}</div>
-          </li>
-          {{#if currentUser}}
-          <li class="nav-item {{isActiveRoute 'home'}}">
-            <a class="nav-link" href="/">Reader</a>
-          </li>
-          <li class="nav-item {{isActiveRoute 'following'}}">
-            <a class="nav-link" href="/following">Following</a>
-          </li>
-          {{/if}}
-        </ul>
-      </nav>
-      <!-- <div class="hr"></div> -->
+      {{> navbar}}
     </div>
 
-    <div class="row">
-      {{> form}}
-    </div>
-
-    {{#if currentUser}}
-      {{#if Template.subscriptionsReady}}
-        <div class="row">
-          {{> cards}}
-        </div>
-      {{/if}}
-    {{else}}
-      <div class="row">
-        {{> demo}}
-      </div>
-    {{/if}}
+    {{> Template.dynamic template=content}}
   </div>
 
   {{> ribbon}}
 </template>
 
-<template name="form">
-  <form id="subscribe" class="form-inline">
-    <div class="form-group">
-      <label class="sr-only" for="url">URL</label>
-      <input type="text" class="form-control" id="url" name="url" placeholder="URL" required>
-    </div>
-    <div class="form-group">
-      <label class="sr-only" for="userId">User ID</label>
-      <input type="text" class="form-control" id="userId" name="userId" placeholder="User ID" required>
-    </div>
-    <button type="submit" class="btn btn-primary">Subscribe</button>
-  </form>
+<template name="navbar">
+  <nav class="navbar navbar-light">
+    <ul class="nav navbar-nav">
+      <li class="nav-item">
+        <div class="nav-link">{{> loginButtons}}</div>
+      </li>
 
-  <div class="hr"></div>
-</template>
-
-<template name="cards">
-  {{#if hasCard}}
-    {{#each cards}}
-      {{> card}}
-    {{/each}}
-  {{else}}
-    <ul class="list-group">
-      <li class="list-group-item">Fetching...</li>
+      {{#if currentUser}}
+        <li class="nav-item {{isActiveRoute 'home'}}">
+          <a class="nav-link" href="/">Reader</a>
+        </li>
+        <li class="nav-item {{isActiveRoute 'following'}}">
+          <a class="nav-link" href="/following">Following</a>
+        </li>
+      {{/if}}
     </ul>
-  {{/if}}
-</template>
-
-<template name="card">
-  <div class="card card-block">
-    <p class="card-text">
-      <strong>{{owner}}</strong> ({{ownerId}})
-    </p>
-    <p class="card-text">
-      {{content}}
-    </p>
-    <p class="card-text">
-      <small class="text-muted">Piece ID: {{_id}}</small>
-    </p>
-  </div>
-</template>
-
-<template name="demo">
-  {{> hero}}
-
-  {{#each cards}}
-    {{> card}}
-  {{/each}}
-</template>
-
-<template name="hero">
-  <div class="jumbotron">
-    <h1 class="display-2">Welcome to Piece Reader.</h1>
-    <p class="lead">Each piece is a message. You can follow/subscribe other's pieces at top form &#8593; or you can create an account at top-left corner ↖ to remember your subscription.</p>
-
-    <p class="lead"><mark>Example</mark> URL: <kbd>https://piece.meteor.com</kbd> User ID: <kbd>492WZqeqCxrDqfG5u</kbd> <button type="button" class="btn btn-secondary btn-sm" data-action="subscribe">1-Click subscription</button></p>
-
-    {{#if subscribed}}
-      <hr class="m-y-md">
-      <p>Thank you for trying. Pieces will be shown below ↓ in a few seconds. For more, you can create your account to follow other's pieces if you know its URL and User ID. When you come back next time, Piece Reader will remember your subscription. Want to publish your own pieces? Check out <a href="https://piece.meteor.com/">Piece</a>.</p>
-    {{/if}}
-  </div>
+  </nav>
 </template>

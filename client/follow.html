@@ -1,48 +1,27 @@
 <template name="follow">
-  <!-- <div class="hr"></div> -->
-  <div class="container">
-    <div class="row">
-      <nav class="navbar navbar-light">
-        <!-- <a class="navbar-brand" href="/">Piece Reader</a> -->
-        <ul class="nav navbar-nav">
-          <li class="nav-item">
-            <div class="nav-link">{{> loginButtons}}</div>
-          </li>
-          {{#if currentUser}}
-          <li class="nav-item">
-            <a class="nav-link" href="/">Reader</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/following">Following</a>
-          </li>
-          {{/if}}
-        </ul>
-      </nav>
-      <!-- <div class="hr"></div> -->
-    </div>
-
-    <div class="row">
-      {{> formFollow}}
-      <div class="hr"></div>
-    </div>
-
-    <div class="row">
-      <ul class="list-group">
-        {{#if hasList}}
-          {{#each lists}}
-            <li class="list-group-item">{{owner}}: {{content}}</li>
-          {{/each}}
-        {{else}}
-          <li class="list-group-item">Fetching...</li>
-        {{/if}}
-      </ul>
-    </div>
+  <div class="row">
+    {{> followForm}}
+    <div class="hr"></div>
   </div>
 
-  {{> ribbon}}
+  <div class="row">
+    {{> followPiecesWrapper}}
+  </div>
 </template>
 
-<template name="formFollow">
+<template name="followPiecesWrapper">
+  <ul class="list-group">
+    {{#if hasPiece}}
+      {{#each pieces}}
+        <li class="list-group-item">{{owner}}: {{content}}</li>
+      {{/each}}
+    {{else}}
+      <li class="list-group-item">Fetching...</li>
+    {{/if}}
+  </ul>
+</template>
+
+<template name="followForm">
   <form id="subscribe" class="form-inline">
     <div class="form-group">
       <label class="sr-only" for="url">URL</label>
@@ -54,19 +33,27 @@
     </div>
 
     {{#if currentUser}}
-      {{#if Template.subscriptionsReady}}
-        {{#if following}}
-          {{#if unfollow}}
-            <button type="button" class="btn btn-danger" data-action="unfollow">Unfollow</button>
-          {{else}}
-            <button type="button" class="btn btn-primary" data-action="following">Following</button>
-          {{/if}}
-        {{else}}
-          <button type="button" class="btn btn-primary" data-action="follow">Follow</button>
-        {{/if}}
-      {{/if}}
+      {{> followButtonWrapper}}
     {{else}}
       <button type="button" class="btn btn-primary" disabled>Please sign in ↖</button>
     {{/if}}
   </form>
+</template>
+
+<template name="followButtonWrapper">
+  {{#if Template.subscriptionsReady}}
+    {{> followButton}}
+  {{/if}}
+</template>
+
+<template name="followButton">
+  {{#if following}}
+    {{#if unfollow}}
+      <button type="button" class="btn btn-danger" data-action="unfollow">Unfollow</button>
+    {{else}}
+      <button type="button" class="btn btn-primary" data-action="following">Following</button>
+    {{/if}}
+  {{else}}
+    <button type="button" class="btn btn-primary" data-action="follow">Follow</button>
+  {{/if}}
 </template>

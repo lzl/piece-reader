@@ -2,6 +2,8 @@ Accounts.ui.config({
   passwordSignupFields: "USERNAME_ONLY"
 });
 
+Pieces = new Mongo.Collection(null); // Local collection
+
 var reset = function () {
   Connections = Object.create(null);
   Collections = Object.create(null);
@@ -9,18 +11,6 @@ var reset = function () {
 };
 
 reset();
-Pieces = new Mongo.Collection(null); // Local collection
-
-// var lists = [
-//   {hostname: "piece.meteor.com", userId: [
-//     "hocm8Cd3SjztwtiBr",
-//     "492WZqeqCxrDqfG5u"
-//   ]},
-//   {hostname: "localhost:4000", userId: [
-//     "X3oicwXho45xzmyc6",
-//     "iZY4CdELFN9eQv5sa"
-//   ]}
-// ];
 
 var connect = function (hostname, userId) {
   console.log("connect:", hostname, userId);
@@ -34,102 +24,33 @@ var connect = function (hostname, userId) {
 };
 
 var observe = function (handle, hostname) {
-  Tracker.autorun(function () {
+  Tracker.autorun(function (c) {
     if (handle.ready()) {
       console.log("subscription from", hostname, "is ready");
-      let cursor = Collections[hostname].find();
-      let cursorHandle = cursor.observeChanges({
-        added: function (id, piece) {
-          console.log("added:", id, piece);
-          piece._id = id;
-          Pieces.insert(piece);
-        },
-        removed: function (id) {
-          console.log("removed:", id);
-          Pieces.remove(id);
-        }
-      });
+      if (Collections[hostname]) {
+        let cursor = Collections[hostname].find();
+        let cursorHandle = cursor.observeChanges({
+          added: function (id, piece) {
+            if (Pieces.findOne(id)) {
+              console.log("found existed piece");
+              return;
+            } else {
+              console.log("added:", id);
+              piece._id = id;
+              Pieces.insert(piece);
+            }
+          },
+          removed: function (id) {
+            console.log("removed:", id);
+            Pieces.remove(id);
+          }
+        });
+      } else {
+        c.stop();
+      }
     }
   })
 }
-
-Template.app.onCreated(function () {
-  this.subscribe('pieceCurrentUserSubs');
-  console.log('subscribed pieceCurrentUserSubs publication');
-});
-
-Template.cards.onCreated(function () {
-  console.log('created cards template')
-  let listsCursor = Subs.find();
-  let lists = listsCursor.fetch();
-
-  console.log("subs:", lists);
-  _.each(lists, function (list) {
-    connect(list.hostname, list.userId);
-  });
-
-  console.log("observation begins");
-  _.each(Subscriptions, function (handle, hostname) {
-    observe(handle, hostname);
-  });
-});
-
-Template.cards.onDestroyed(function () {
-  reset();
-  Pieces.remove({});
-});
-
-Template.demo.onDestroyed(function () {
-  reset();
-  Pieces.remove({});
-});
-
-Template.cards.helpers({
-  cards() {
-    return Pieces.find({}, {sort: {createdAt: -1}});
-  },
-  hasCard() {
-    return Pieces.findOne();
-  }
-});
-
-Template.demo.helpers({
-  cards() {
-    return Pieces.find({}, {sort: {createdAt: -1}});
-  }
-});
-
-Template.form.onRendered(function () {
-  $("#subscribe").validate({
-    rules: {
-      url: {
-        required: true,
-        url: true
-      },
-      userId: {
-        required: true,
-        rangelength: [17, 17]
-      }
-    },
-    messages: {
-      userId: {
-        rangelength: "Please enter a valid user ID."
-      }
-    }
-  });
-});
-
-// via http://jsperf.com/url-parsing
-// var urlParse = function (url) {
-//   let urlParseRE = /^(((([^:\/#\?]+:)?(?:(\/\/)((?:(([^:@\/#\?]+)(?:\:([^:@\/#\?]+))?)@)?(([^:\/#\?\]\[]+|\[[^\/\]@#?]+\])(?:\:([0-9]+))?))?)?)?((\/?(?:[^\/\?#]+\/+)*)([^\?#]*)))?(\?[^#]+)?)(#.*)?/;
-//   let matches = urlParseRE.exec(url);
-//   let hostname = matches[10];
-//   if (hostname === undefined) {
-//     throw new Meteor.Error("undefined", "Server name is undefined.");
-//   } else {
-//     return hostname;
-//   }
-// }
 
 var hostnameParse = function (url) {
   const urlParser = document.createElement('a');
@@ -150,7 +71,26 @@ var subscribeViaForm = function (hostname, userId) {
   }
 }
 
-Template.form.events({
+Template.readerForm.onRendered(function () {
+  $("#subscribe").validate({
+    rules: {
+      url: {
+        required: true,
+        url: true
+      },
+      userId: {
+        required: true,
+        rangelength: [17, 17]
+      }
+    },
+    messages: {
+      userId: {
+        rangelength: "Please enter a valid user ID."
+      }
+    }
+  });
+});
+Template.readerForm.events({
   'submit form': function (event, template) {
     event.preventDefault();
     let url = template.find("[name='url']").value;
@@ -168,18 +108,52 @@ Template.form.events({
   }
 });
 
-Template.hero.onCreated(function () {
-  let instance = this;
-  instance.subscribed = new ReactiveVar(false);
-});
-
-Template.hero.helpers({
-  subscribed() {
-    return Template.instance().subscribed.get();
+Template.readerSubsWrapper.onCreated(function () {
+  this.subscribe('pieceCurrentUserSubs');
+  console.log('subscribed pieceCurrentUserSubs publication');
+})
+Template.readerSubsWrapper.helpers({
+  hasSub() {
+    return Subs.findOne();
   }
 })
 
-Template.hero.events({
+Template.readerPiecesWrapper.onCreated(function () {
+  reset();
+  let listsCursor = Subs.find();
+  let lists = listsCursor.fetch();
+
+  console.log("subs:", lists);
+  _.each(lists, function (list) {
+    connect(list.hostname, list.userId);
+  });
+
+  console.log("observation begins");
+  _.each(Subscriptions, function (handle, hostname) {
+    observe(handle, hostname);
+  });
+})
+Template.readerPiecesWrapper.helpers({
+  hasPiece() {
+    return Pieces.findOne();
+  },
+  pieces() {
+    return Pieces.find({}, {sort: {createdAt: -1}});
+  }
+})
+
+Template.readerDemo.onCreated(function () {
+  this.subscribed = new ReactiveVar(false);
+})
+Template.readerDemo.helpers({
+  subscribed() {
+    return Template.instance().subscribed.get();
+  },
+  pieces() {
+    return Pieces.find({}, {sort: {createdAt: -1}});
+  }
+})
+Template.readerDemo.events({
   'click [data-action=subscribe]': function (event, template) {
     event.preventDefault();
     let hostname = "piece.meteor.com";
@@ -189,33 +163,44 @@ Template.hero.events({
   }
 });
 
-Template.follow.onCreated(function () {
-  this.subscribe('pieceCurrentUserSubs');
+Template.followingSubsWrapper.helpers({
+  subs() {
+    return Subs.find({}, {sort: {hostname: 1}});
+  }
+})
 
+Template.followPiecesWrapper.onCreated(function () {
   let hostname = FlowRouter.getQueryParam("hostname");
   let userId = FlowRouter.getQueryParam("userId");
   subscribeViaForm(hostname, userId);
-});
-
-Template.follow.onDestroyed(function () {
-  reset();
-  Pieces.remove({});
-});
-
-Template.follow.helpers({
-  lists() {
-    return Pieces.find({}, {sort: {createdAt: -1}});
-  },
-  hasList() {
+})
+Template.followPiecesWrapper.helpers({
+  hasPiece() {
     return Pieces.findOne();
+  },
+  pieces() {
+    let userId = FlowRouter.getQueryParam("userId");
+    return Pieces.find({ownerId: userId}, {sort: {createdAt: -1}});
   }
-});
+})
 
-Template.formFollow.onCreated(function () {
+Template.followForm.helpers({
+  URL() {
+    return "https://" + FlowRouter.getQueryParam("hostname");
+  },
+  userId() {
+    return FlowRouter.getQueryParam("userId");
+  }
+})
+
+Template.followButtonWrapper.onCreated(function () {
+  this.subscribe('pieceCurrentUserSubs');
+})
+
+Template.followButton.onCreated(function () {
   this.unfollow = new ReactiveVar(false);
-});
-
-Template.formFollow.helpers({
+})
+Template.followButton.helpers({
   following() {
     let hostname = FlowRouter.getQueryParam("hostname");
     let userId = FlowRouter.getQueryParam("userId");
@@ -223,35 +208,24 @@ Template.formFollow.helpers({
   },
   unfollow() {
     return Template.instance().unfollow.get();
-  },
-  URL() {
-    return "https://" + FlowRouter.getQueryParam("hostname");
-  },
-  userId() {
-    return FlowRouter.getQueryParam("userId");
   }
-});
-
-Template.formFollow.events({
+})
+Template.followButton.events({
   'click [data-action=follow]': function (event, template) {
     event.preventDefault();
     let hostname = FlowRouter.getQueryParam("hostname");
     let userId = FlowRouter.getQueryParam("userId");
-    console.log("follow", hostname, userId);
+    console.log("follow:", hostname, userId);
 
     if (Meteor.userId()) {
-      Meteor.call('subInsert', hostname, userId, function (error, result) {
-        if (! error) {
-          FlowRouter.go("/");
-        }
-      });
+      Meteor.call('subInsert', hostname, userId);
     }
   },
   'click [data-action=unfollow]': function (event, template) {
     event.preventDefault();
     let hostname = FlowRouter.getQueryParam("hostname");
     let userId = FlowRouter.getQueryParam("userId");
-    console.log("unfollow", hostname, userId);
+    console.log("unfollow:", hostname, userId);
 
     if (Meteor.userId()) {
       Meteor.call('subRemove', hostname, userId);
@@ -263,18 +237,4 @@ Template.formFollow.events({
   'mouseleave [data-action=unfollow]': function (event, template) {
     Template.instance().unfollow.set(false);
   }
-});
-
-Template.following.onCreated(function () {
-  this.subscribe('pieceCurrentUserSubs');
-  console.log('subscribed pieceCurrentUserSubs publication');
-});
-
-Template.following.helpers({
-  hasCard() {
-    return Subs.findOne();
-  },
-  cards() {
-    return Subs.find();
-  }
-});
+})
