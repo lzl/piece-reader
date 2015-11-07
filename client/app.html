@@ -13,8 +13,8 @@
 <template name="navbar">
   <nav class="navbar navbar-light">
     <ul class="nav navbar-nav">
-      <li class="nav-item">
-        <div class="nav-link">{{> loginButtons}}</div>
+      <li class="nav-item active">
+        <div class="nav-link">{{> status}}</div>
       </li>
 
       {{#if currentUser}}
@@ -27,4 +27,26 @@
       {{/if}}
     </ul>
   </nav>
+</template>
+
+<template name="status">
+  {{#if connecting}}
+    <span class="text-primary">Connecting</span>
+  {{/if}}
+
+  {{#if connected}}
+    {{> loginButtons}}
+  {{/if}}
+
+  {{#if failed}}
+    <span class="text-danger">Failed</span>
+  {{/if}}
+
+  {{#if waiting}}
+    <span class="text-primary">Waiting</span>
+  {{/if}}
+
+  {{#if offline}}
+    <span class="text-danger">Offline</span>
+  {{/if}}
 </template>

@@ -1,3 +1,7 @@
+Tracker.autorun(function () {
+  console.log("server connection status:", Meteor.status().status, new Date());
+});
+
 Accounts.ui.config({
   passwordSignupFields: "USERNAME_ONLY"
 });
@@ -74,6 +78,24 @@ var subscribeViaForm = function (hostname, userId) {
     Connections[hostname].subscribe("pieceSingleUserPosts", userId);
   }
 }
+
+Template.status.helpers({
+  connecting() {
+    return Meteor.status().status === 'connecting';
+  },
+  connected() {
+    return Meteor.status().status === 'connected';
+  },
+  failed() {
+    return Meteor.status().status === 'failed';
+  },
+  waiting() {
+    return Meteor.status().status === 'waiting';
+  },
+  offline() {
+    return Meteor.status().status === 'offline';
+  }
+})
 
 Template.readerForm.onRendered(function () {
   $("#subscribe").validate({
