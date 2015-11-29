@@ -207,14 +207,10 @@ Template.followingSubsWrapper.helpers({
 })
 
 Template.followPiecesWrapper.onCreated(function () {
-  this.autorun(function () {
-    if (! Pieces.findOne()) {
-      const hostname = FlowRouter.getQueryParam("hostname");
-      const userId = FlowRouter.getQueryParam("userId");
-      console.log("subscribeViaForm", hostname, userId);
-      subscribeViaForm(hostname, userId);
-    }
-  })
+  const hostname = FlowRouter.getQueryParam("hostname");
+  const userId = FlowRouter.getQueryParam("userId");
+  console.log("subscribeViaForm", hostname, userId);
+  subscribeViaForm(hostname, userId);
 })
 Template.followPiecesWrapper.helpers({
   hasPiece() {
