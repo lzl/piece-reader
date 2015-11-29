@@ -6,7 +6,9 @@
 
   {{#if currentUser}}
     <div class="row">
-      {{> readerSubsWrapper}}
+      {{#readerClonesWrapper}}
+        {{> readerSubsWrapper}}
+      {{/readerClonesWrapper}}
     </div>
   {{else}}
     <div class="row">
@@ -27,6 +29,12 @@
     </div>
     <button type="submit" class="btn btn-primary">Follow</button>
   </form>
+</template>
+
+<template name="readerClonesWrapper">
+  {{#if Template.subscriptionsReady}}
+    {{> Template.contentBlock}}
+  {{/if}}
 </template>
 
 <template name="readerSubsWrapper">

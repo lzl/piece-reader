@@ -21,7 +21,9 @@
 <template name="following">
   {{#if currentUser}}
     <div class="row">
-      {{> readerSubsWrapper}}
+      {{#readerClonesWrapper}}
+        {{> readerSubsWrapper}}
+      {{/readerClonesWrapper}}
     </div>
   {{else}}
     <div class="row">

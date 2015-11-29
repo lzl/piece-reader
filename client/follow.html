@@ -33,7 +33,9 @@
     </div>
 
     {{#if currentUser}}
-      {{> followButtonWrapper}}
+      {{#readerClonesWrapper}}
+        {{> followButtonWrapper}}
+      {{/readerClonesWrapper}}
     {{else}}
       <button type="button" class="btn btn-primary" disabled>Please sign in ↖</button>
     {{/if}}

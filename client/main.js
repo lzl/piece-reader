@@ -23,7 +23,7 @@ var connect = function (hostname, userId) {
   if (userId.constructor === Array) {
     Subscriptions[hostname] = Connections[hostname].subscribe("pieceMultiUserPosts", userId);
   } else {
-    Subscriptions[hostname] = Connections[hostname].subscribe("pieceSingleUserPosts", userId);
+    Subscriptions[hostname] = Connections[hostname].subscribe("pieceSingleClonePosts", userId);
   }
 };
 
@@ -126,8 +126,9 @@ Template.readerForm.events({
     subscribeViaForm(hostname, userId);
 
     if (Meteor.userId()) {
-      Meteor.call('subInsert', hostname, userId);
-      console.log("sub inserted:", hostname, userId);
+      const cloneId = Session.get("currentCloneId");
+      Meteor.call('subInsertByClone', cloneId, hostname, userId);
+      console.log("sub inserted:", hostname, userId, "by", cloneId);
     }
 
     document.getElementById("subscribe").reset();
@@ -135,8 +136,15 @@ Template.readerForm.events({
 });
 
 Template.readerSubsWrapper.onCreated(function () {
-  this.subscribe('pieceCurrentUserSubs');
-  console.log('subscribed pieceCurrentUserSubs publication');
+  this.autorun(() => {
+    // if currentCloneId was set, then check if it belongs to current user
+    if (! Clones.findOne(Session.get("currentCloneId"))) {
+      // if not, then set again
+      Session.set("currentCloneId", Clones.findOne()._id);
+    }
+    this.subscribe('pieceCurrentCloneSubs', Session.get("currentCloneId"));
+    console.log('subscribe: pieceCurrentCloneSubs by', Session.get("currentCloneId"));
+  });
 })
 Template.readerSubsWrapper.helpers({
   hasSub() {
@@ -145,18 +153,21 @@ Template.readerSubsWrapper.helpers({
 })
 
 Template.readerPiecesWrapper.onCreated(function () {
-  reset();
-  let listsCursor = Subs.find();
-  let lists = listsCursor.fetch();
+  this.autorun(function () {
+    reset();
+    console.log("Reset connections, collections and subscriptions")
+    let listsCursor = Subs.find();
+    let lists = listsCursor.fetch();
 
-  console.log("subs:", lists);
-  _.each(lists, function (list) {
-    connect(list.hostname, list.userId);
-  });
+    console.log("subs:", lists);
+    _.each(lists, function (list) {
+      connect(list.hostname, list.userId);
+    });
 
-  console.log("observation begins");
-  _.each(Subscriptions, function (handle, hostname) {
-    observe(handle, hostname);
+    console.log("observation begins");
+    _.each(Subscriptions, function (handle, hostname) {
+      observe(handle, hostname);
+    });
   });
 })
 Template.readerPiecesWrapper.helpers({
@@ -196,9 +207,14 @@ Template.followingSubsWrapper.helpers({
 })
 
 Template.followPiecesWrapper.onCreated(function () {
-  let hostname = FlowRouter.getQueryParam("hostname");
-  let userId = FlowRouter.getQueryParam("userId");
-  subscribeViaForm(hostname, userId);
+  this.autorun(function () {
+    if (! Pieces.findOne()) {
+      const hostname = FlowRouter.getQueryParam("hostname");
+      const userId = FlowRouter.getQueryParam("userId");
+      console.log("subscribeViaForm", hostname, userId);
+      subscribeViaForm(hostname, userId);
+    }
+  })
 })
 Template.followPiecesWrapper.helpers({
   hasPiece() {
@@ -220,7 +236,15 @@ Template.followForm.helpers({
 })
 
 Template.followButtonWrapper.onCreated(function () {
-  this.subscribe('pieceCurrentUserSubs');
+  this.autorun(() => {
+    // if currentCloneId was set, then check if it belongs to current user
+    if (! Clones.findOne(Session.get("currentCloneId"))) {
+      // if not, then set again
+      Session.set("currentCloneId", Clones.findOne()._id);
+    }
+    this.subscribe('pieceCurrentCloneSubs', Session.get("currentCloneId"));
+    console.log('subscribe: pieceCurrentCloneSubs by', Session.get("currentCloneId"));
+  });
 })
 
 Template.followButton.onCreated(function () {
@@ -241,20 +265,22 @@ Template.followButton.events({
     event.preventDefault();
     let hostname = FlowRouter.getQueryParam("hostname");
     let userId = FlowRouter.getQueryParam("userId");
-    console.log("follow:", hostname, userId);
 
     if (Meteor.userId()) {
-      Meteor.call('subInsert', hostname, userId);
+      const cloneId = Session.get("currentCloneId");
+      Meteor.call('subInsertByClone', cloneId, hostname, userId);
+      console.log("follow", hostname, userId, "by", cloneId);
     }
   },
   'click [data-action=unfollow]': function (event, template) {
     event.preventDefault();
     let hostname = FlowRouter.getQueryParam("hostname");
     let userId = FlowRouter.getQueryParam("userId");
-    console.log("unfollow:", hostname, userId);
 
     if (Meteor.userId()) {
-      Meteor.call('subRemove', hostname, userId);
+      const cloneId = Session.get("currentCloneId");
+      Meteor.call('subRemoveByClone', cloneId, hostname, userId);
+      console.log("unfollow", hostname, userId, "by", cloneId);
     }
   },
   'mouseenter [data-action=following]': function (event, template) {
@@ -264,3 +290,21 @@ Template.followButton.events({
     Template.instance().unfollow.set(false);
   }
 })
+
+Template.readerClonesWrapper.onCreated(function () {
+  // set currentCloneId with first clone's id if it wasn't set before
+  Session.setDefault("currentCloneId", Meteor.userId());
+  this.subscribe('pieceCurrentUserClones');
+  console.log('subscribe: pieceCurrentUserClones');
+})
+
+switchClone = () => {
+  Pieces.remove({});
+  reset();
+  const cloneId = Session.get("currentCloneId");
+  if (cloneId === "shshXASCNxsgkvksX") {
+    Session.set("currentCloneId", "5NfXQG6HwBCosBEoM");
+  } else {
+    Session.set("currentCloneId", "shshXASCNxsgkvksX");
+  }
+}
