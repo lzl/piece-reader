@@ -279,8 +279,12 @@ Template.followButton.events({
 
     if (Meteor.userId()) {
       const cloneId = Session.get("currentCloneId");
-      Meteor.call('subRemoveByClone', cloneId, hostname, userId);
-      console.log("unfollow", hostname, userId, "by", cloneId);
+      Meteor.call('subRemoveByClone', cloneId, hostname, userId, function () {
+        if (Pieces.findOne({ownerId: userId})) {
+          Pieces.remove({ownerId: userId});
+        }
+        console.log("unfollow", hostname, userId, "by", cloneId);
+      });
     }
   },
   'mouseenter [data-action=following]': function (event, template) {
