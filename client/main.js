@@ -105,7 +105,7 @@ Template.status.helpers({
   }
 })
 
-Template.readerForm.onRendered(function () {
+Template.previewForm.onRendered(function () {
   $("#subscribe").validate({
     rules: {
       url: {
@@ -124,7 +124,7 @@ Template.readerForm.onRendered(function () {
     }
   });
 });
-Template.readerForm.events({
+Template.previewForm.events({
   'submit form': function (event, template) {
     event.preventDefault();
     const url = template.find("[name='url']").value;
@@ -134,7 +134,7 @@ Template.readerForm.events({
   }
 });
 
-Template.dynamicSubs.helpers({
+Template.hasSubOrNot.helpers({
   hasSub() {
     return Subs.findOne();
   }
@@ -167,12 +167,12 @@ Template.readerPieces.helpers({
   }
 })
 
-Template.readerPiecesDemo.onCreated(function () {
+Template.demoPieces.onCreated(function () {
   const hostname = "piece.meteor.com";
   const userId = "Eqrz7jo3YcMeabNdg";
   previewViaForm(hostname, userId);
 })
-Template.readerPiecesDemo.helpers({
+Template.demoPieces.helpers({
   hasPiece() {
     return PiecesPreview.findOne();
   },
@@ -187,17 +187,17 @@ Template.followingSubs.helpers({
   }
 })
 
-Template.followPieces.onCreated(function () {
+Template.previewPieces.onCreated(function () {
   const hostname = FlowRouter.getQueryParam("hostname");
   const userId = FlowRouter.getQueryParam("userId");
   previewViaForm(hostname, userId);
 })
-Template.followPieces.helpers({
+Template.previewPieces.helpers({
   hasPiece() {
     return PiecesPreview.findOne();
   },
   pieces() {
-    let userId = FlowRouter.getQueryParam("userId");
+    const userId = FlowRouter.getQueryParam("userId");
     return PiecesPreview.find({ownerId: userId}, {sort: {createdAt: -1}});
   }
 })
@@ -216,8 +216,8 @@ Template.followButton.onCreated(function () {
 })
 Template.followButton.helpers({
   following() {
-    let hostname = FlowRouter.getQueryParam("hostname");
-    let userId = FlowRouter.getQueryParam("userId");
+    const hostname = FlowRouter.getQueryParam("hostname");
+    const userId = FlowRouter.getQueryParam("userId");
     return followed = Subs.findOne({hostname: hostname, userId: {$in: [userId]}});
   },
   unfollow() {
@@ -227,8 +227,8 @@ Template.followButton.helpers({
 Template.followButton.events({
   'click [data-action=follow]': function (event, template) {
     event.preventDefault();
-    let hostname = FlowRouter.getQueryParam("hostname");
-    let userId = FlowRouter.getQueryParam("userId");
+    const hostname = FlowRouter.getQueryParam("hostname");
+    const userId = FlowRouter.getQueryParam("userId");
 
     if (Meteor.userId()) {
       const cloneId = Session.get("currentCloneId");
@@ -283,14 +283,3 @@ Template.subsWrapper.onCreated(function () {
     console.log('subscribe: pieceCurrentCloneSubs by', Session.get("currentCloneId"));
   });
 })
-
-switchClone = () => {
-  Pieces.remove({});
-  // reset();
-  const cloneId = Session.get("currentCloneId");
-  if (cloneId === "shshXASCNxsgkvksX") {
-    Session.set("currentCloneId", "5NfXQG6HwBCosBEoM");
-  } else {
-    Session.set("currentCloneId", "shshXASCNxsgkvksX");
-  }
-}

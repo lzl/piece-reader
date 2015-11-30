@@ -4,10 +4,28 @@
       {{> navbar}}
     </div>
 
-    {{> Template.dynamic template=content}}
+    {{#if currentUser}}
+      {{> private}}
+    {{else}}
+      {{> public}}
+    {{/if}}
   </div>
 
   {{> ribbon}}
+</template>
+
+<template name="private">
+  {{#clonesWrapper}}
+    {{#subsWrapper}}
+      {{> Template.dynamic template=subForm}}
+      {{> Template.dynamic template=privateContent}}
+    {{/subsWrapper}}
+  {{/clonesWrapper}}
+</template>
+
+<template name="public">
+  {{> Template.dynamic template=subForm}}
+  {{> Template.dynamic template=publicContent}}
 </template>
 
 <template name="navbar">

@@ -1,0 +1,146 @@
+<template name="previewForm">
+  <div class="row">
+    <form id="subscribe" class="form-inline">
+      <div class="form-group">
+        <label class="sr-only" for="url">URL</label>
+        <input type="text" class="form-control" id="url" name="url" placeholder="URL" required>
+      </div>
+      <div class="form-group">
+        <label class="sr-only" for="userId">User ID</label>
+        <input type="text" class="form-control" id="userId" name="userId" placeholder="User ID" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Preview</button>
+    </form>
+    <div class="hr"></div>
+  </div>
+</template>
+
+<template name="followForm">
+  <div class="row">
+    <form id="subscribe" class="form-inline">
+      <div class="form-group">
+        <label class="sr-only" for="url">URL</label>
+        <input type="text" class="form-control" id="url" name="url" placeholder="{{URL}}" disabled>
+      </div>
+      <div class="form-group">
+        <label class="sr-only" for="userId">User ID</label>
+        <input type="text" class="form-control" id="userId" name="userId" placeholder="{{userId}}" disabled>
+      </div>
+
+      {{#if currentUser}}
+        {{> followButton}}
+      {{else}}
+        <button type="button" class="btn btn-primary" disabled>Please sign in ↖</button>
+      {{/if}}
+    </form>
+    <div class="hr"></div>
+  </div>
+</template>
+
+<template name="followButton">
+  {{#if following}}
+    {{#if unfollow}}
+      <button type="button" class="btn btn-danger" data-action="unfollow">Unfollow</button>
+    {{else}}
+      <button type="button" class="btn btn-primary" data-action="following">Following</button>
+    {{/if}}
+  {{else}}
+    <button type="button" class="btn btn-primary" data-action="follow">Follow</button>
+  {{/if}}
+</template>
+
+<template name="hasSubOrNot">
+  {{#if hasSub}}
+    {{> Template.dynamic template=card}}
+  {{else}}
+    <ul class="list-group">
+      <li class="list-group-item">You have no following.</li>
+    </ul>
+  {{/if}}
+</template>
+
+<template name="readerPieces">
+  {{#if hasPiece}}
+    {{#each pieces}}
+      {{> readerPiece}}
+    {{/each}}
+  {{else}}
+    <ul class="list-group">
+      <li class="list-group-item">Fetching pieces...</li>
+    </ul>
+  {{/if}}
+</template>
+
+<template name="readerPiece">
+  <div class="card card-block">
+    <p class="card-text">
+      <strong>{{owner}}</strong>
+      <small class="text-muted">({{ownerId}})</small>
+    </p>
+    <p class="card-text">
+      {{content}}
+    </p>
+    <p class="card-text">
+      <small class="text-muted">Piece ID: {{_id}}</small>
+    </p>
+  </div>
+</template>
+
+<template name="followingSubs">
+  {{#each subs}}
+    {{> followingSub}}
+  {{/each}}
+</template>
+
+<template name="followingSub">
+  <div class="card card-block">
+    <p class="card-text">
+      Hostname: {{hostname}}
+    </p>
+
+    <div class="list-group">
+      {{#each userId}}
+        <a href="/follow?hostname={{../hostname}}&userId={{this}}" class="list-group-item">User ID: {{this}}</a>
+      {{/each}}
+    </div>
+  </div>
+</template>
+
+<template name="previewPieces">
+  <ul class="list-group">
+    {{#if hasPiece}}
+      {{#each pieces}}
+        <li class="list-group-item">{{owner}}: {{content}}</li>
+      {{/each}}
+    {{else}}
+      <li class="list-group-item">Fetching pieces...</li>
+    {{/if}}
+  </ul>
+</template>
+
+<template name="demoPieces">
+  <div class="jumbotron">
+    <h1 class="display-2">Welcome to Piece Reader.</h1>
+    <p class="lead">Each piece is a message. You can preview pieces with top form &#8593;.</p>
+    <p>Below &#8595; is Piece's official pieces, for demonstration.</p>
+    <p>For more, you can create an account to follow other's pieces if you know its URL and User ID. When you come back next time, Piece Reader will remember who you followed. Want to publish your own pieces? Check out <a href="https://piece.meteor.com/">Piece</a>.</p>
+  </div>
+
+  {{#if hasPiece}}
+    {{#each pieces}}
+      {{> readerPiece}}
+    {{/each}}
+  {{else}}
+    <ul class="list-group">
+      <li class="list-group-item">Fetching demo pieces...</li>
+    </ul>
+  {{/if}}
+</template>
+
+<template name="signIn">
+  <div class="row">
+    <ul class="list-group">
+      <li class="list-group-item">Please sign in ↖</li>
+    </ul>
+  </div>
+</template>

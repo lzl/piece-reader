@@ -2,7 +2,9 @@
   {{#if Template.subscriptionsReady}}
     {{> Template.contentBlock}}
   {{else}}
-    {{> Template.dynamic template=clonesLoading}}
+    <ul class="list-group">
+      <li class="list-group-item">Loading clones...</li>
+    </ul>
   {{/if}}
 </template>
 
@@ -10,6 +12,8 @@
   {{#if Template.subscriptionsReady}}
     {{> Template.contentBlock}}
   {{else}}
-    {{> Template.dynamic template=subsLoading}}
+    <ul class="list-group">
+      <li class="list-group-item">Loading subs...</li>
+    </ul>
   {{/if}}
 </template>
