@@ -1,0 +1,15 @@
+<template name="clonesWrapper">
+  {{#if Template.subscriptionsReady}}
+    {{> Template.contentBlock}}
+  {{else}}
+    {{> Template.dynamic template=clonesLoading}}
+  {{/if}}
+</template>
+
+<template name="subsWrapper">
+  {{#if Template.subscriptionsReady}}
+    {{> Template.contentBlock}}
+  {{else}}
+    {{> Template.dynamic template=subsLoading}}
+  {{/if}}
+</template>

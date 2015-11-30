@@ -5,18 +5,18 @@
   </div>
 
   <div class="row">
-    {{> followPiecesWrapper}}
+    {{> followPieces}}
   </div>
 </template>
 
-<template name="followPiecesWrapper">
+<template name="followPieces">
   <ul class="list-group">
     {{#if hasPiece}}
       {{#each pieces}}
         <li class="list-group-item">{{owner}}: {{content}}</li>
       {{/each}}
     {{else}}
-      <li class="list-group-item">Fetching...</li>
+      <li class="list-group-item">Fetching pieces...</li>
     {{/if}}
   </ul>
 </template>
@@ -33,19 +33,15 @@
     </div>
 
     {{#if currentUser}}
-      {{#readerClonesWrapper}}
-        {{> followButtonWrapper}}
-      {{/readerClonesWrapper}}
+      {{#clonesWrapper}}
+        {{#subsWrapper}}
+          {{> followButton}}
+        {{/subsWrapper}}
+      {{/clonesWrapper}}
     {{else}}
       <button type="button" class="btn btn-primary" disabled>Please sign in ↖</button>
     {{/if}}
   </form>
-</template>
-
-<template name="followButtonWrapper">
-  {{#if Template.subscriptionsReady}}
-    {{> followButton}}
-  {{/if}}
 </template>
 
 <template name="followButton">

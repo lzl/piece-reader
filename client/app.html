@@ -16,11 +16,11 @@
       <li class="nav-item active">
         <div class="nav-link">{{> status}}</div>
       </li>
+      <li class="nav-item {{isActiveRoute 'reader'}}">
+        <a class="nav-link" href="/">Reader</a>
+      </li>
 
       {{#if currentUser}}
-        <li class="nav-item {{isActiveRoute 'home'}}">
-          <a class="nav-link" href="/">Reader</a>
-        </li>
         <li class="nav-item {{isActiveRoute 'following'}}">
           <a class="nav-link" href="/following">Following</a>
         </li>

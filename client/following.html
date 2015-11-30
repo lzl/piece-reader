@@ -1,10 +1,28 @@
-<template name="followingSubsWrapper">
-  {{#each subs}}
-    {{> followingSubs}}
-  {{/each}}
+<template name="following">
+  {{#if currentUser}}
+    <div class="row">
+      {{#clonesWrapper}}
+        {{#subsWrapper}}
+          {{> dynamicSubs}}
+        {{/subsWrapper}}
+      {{/clonesWrapper}}
+    </div>
+  {{else}}
+    <div class="row">
+      <ul class="list-group">
+        <li class="list-group-item">Please sign in ↖</li>
+      </ul>
+    </div>
+  {{/if}}
 </template>
 
 <template name="followingSubs">
+  {{#each subs}}
+    {{> followingSub}}
+  {{/each}}
+</template>
+
+<template name="followingSub">
   <div class="card card-block">
     <p class="card-text">
       Hostname: {{hostname}}
@@ -16,20 +34,4 @@
       {{/each}}
     </div>
   </div>
-</template>
-
-<template name="following">
-  {{#if currentUser}}
-    <div class="row">
-      {{#readerClonesWrapper}}
-        {{> readerSubsWrapper}}
-      {{/readerClonesWrapper}}
-    </div>
-  {{else}}
-    <div class="row">
-      <ul class="list-group">
-        <li class="list-group-item">Please sign in ↖</li>
-      </ul>
-    </div>
-  {{/if}}
 </template>

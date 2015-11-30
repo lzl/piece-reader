@@ -6,13 +6,15 @@
 
   {{#if currentUser}}
     <div class="row">
-      {{#readerClonesWrapper}}
-        {{> readerSubsWrapper}}
-      {{/readerClonesWrapper}}
+      {{#clonesWrapper}}
+        {{#subsWrapper}}
+          {{> dynamicSubs}}
+        {{/subsWrapper}}
+      {{/clonesWrapper}}
     </div>
   {{else}}
     <div class="row">
-      {{> readerDemo}}
+      {{> readerPiecesDemo}}
     </div>
   {{/if}}
 </template>
@@ -27,40 +29,28 @@
       <label class="sr-only" for="userId">User ID</label>
       <input type="text" class="form-control" id="userId" name="userId" placeholder="User ID" required>
     </div>
-    <button type="submit" class="btn btn-primary">Follow</button>
+    <button type="submit" class="btn btn-primary">Preview</button>
   </form>
 </template>
 
-<template name="readerClonesWrapper">
-  {{#if Template.subscriptionsReady}}
-    {{> Template.contentBlock}}
-  {{/if}}
-</template>
-
-<template name="readerSubsWrapper">
-  {{#if Template.subscriptionsReady}}
-    {{#if hasSub}}
-      {{> Template.dynamic template=card}}
-    {{else}}
-      <ul class="list-group">
-        <li class="list-group-item">You have no following.</li>
-      </ul>
-    {{/if}}
+<template name="dynamicSubs">
+  {{#if hasSub}}
+    {{> Template.dynamic template=card}}
   {{else}}
     <ul class="list-group">
-      <li class="list-group-item">Loading...</li>
+      <li class="list-group-item">You have no following.</li>
     </ul>
   {{/if}}
 </template>
 
-<template name="readerPiecesWrapper">
+<template name="readerPieces">
   {{#if hasPiece}}
     {{#each pieces}}
       {{> readerPiece}}
     {{/each}}
   {{else}}
     <ul class="list-group">
-      <li class="list-group-item">Fetching...</li>
+      <li class="list-group-item">Fetching pieces...</li>
     </ul>
   {{/if}}
 </template>
@@ -80,20 +70,21 @@
   </div>
 </template>
 
-<template name="readerDemo">
+<template name="readerPiecesDemo">
   <div class="jumbotron">
     <h1 class="display-2">Welcome to Piece Reader.</h1>
-    <p class="lead">Each piece is a message. You can follow other's pieces at top form &#8593; or you can create an account at top-left corner ↖ to remember your following.</p>
-
-    <p class="lead"><mark>Example</mark> URL: <code>https://piece.meteor.com</code> User ID: <code>492WZqeqCxrDqfG5u</code> <button type="button" class="btn btn-secondary btn-sm" data-action="subscribe">1-Click follow</button></p>
-
-    {{#if subscribed}}
-      <hr class="m-y-md">
-      <p>Thank you for trying. Pieces will be shown below ↓ in a few seconds. For more, you can create your account to follow other's pieces if you know its URL and User ID. When you come back next time, Piece Reader will remember who you followed. Want to publish your own pieces? Check out <a href="https://piece.meteor.com/">Piece</a>.</p>
-    {{/if}}
+    <p class="lead">Each piece is a message. You can preview pieces with top form &#8593;.</p>
+    <p>Below &#8595; is Piece's official pieces, for demonstration.</p>
+    <p>For more, you can create an account to follow other's pieces if you know its URL and User ID. When you come back next time, Piece Reader will remember who you followed. Want to publish your own pieces? Check out <a href="https://piece.meteor.com/">Piece</a>.</p>
   </div>
 
-  {{#each pieces}}
-    {{> readerPiece}}
-  {{/each}}
+  {{#if hasPiece}}
+    {{#each pieces}}
+      {{> readerPiece}}
+    {{/each}}
+  {{else}}
+    <ul class="list-group">
+      <li class="list-group-item">Fetching demo pieces...</li>
+    </ul>
+  {{/if}}
 </template>

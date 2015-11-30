@@ -8,7 +8,8 @@ Accounts.ui.config({
 
 Pieces = new Mongo.Collection(null); // Local collection
 
-var reset = function () {
+const reset = function () {
+  console.log("reset: local connections, collections and subscriptions")
   Connections = Object.create(null);
   Collections = Object.create(null);
   Subscriptions = Object.create(null);
@@ -16,7 +17,7 @@ var reset = function () {
 
 reset();
 
-var connect = function (hostname, userId) {
+const connect = function (hostname, userId) {
   console.log("connect:", hostname, userId);
   Connections[hostname] = DDP.connect(`https://${hostname}`);
   Collections[hostname] = new Mongo.Collection('pieces', {connection: Connections[hostname]});
@@ -27,7 +28,7 @@ var connect = function (hostname, userId) {
   }
 };
 
-var observe = function (handle, hostname) {
+const observe = function (handle, hostname) {
   Tracker.autorun(function (c) {
     if (handle.ready()) {
       console.log("subscription from", hostname, "is ready");
@@ -60,7 +61,7 @@ var observe = function (handle, hostname) {
   })
 }
 
-var hostnameParse = function (url) {
+const hostnameParse = function (url) {
   const urlParser = document.createElement('a');
   urlParser.href = url;
   if (urlParser.hostname === undefined) {
@@ -70,13 +71,20 @@ var hostnameParse = function (url) {
   }
 }
 
-var subscribeViaForm = function (hostname, userId) {
+const subscribeViaForm = function (hostname, userId) {
   if (! Connections[hostname]) {
     connect(hostname, userId);
     observe(Subscriptions[hostname], hostname);
   } else {
     Connections[hostname].subscribe("pieceSingleUserPosts", userId);
   }
+}
+
+const previewViaForm = function (hostname, userId) {
+  console.log("previewViaForm:", hostname, userId);
+  const connection = DDP.connect(`https://${hostname}`);
+  PiecesPreview = new Mongo.Collection('pieces', {connection: connection});
+  const subscription = connection.subscribe("pieceSingleClonePosts", userId);
 }
 
 Template.status.helpers({
@@ -119,43 +127,23 @@ Template.readerForm.onRendered(function () {
 Template.readerForm.events({
   'submit form': function (event, template) {
     event.preventDefault();
-    let url = template.find("[name='url']").value;
-    let hostname = hostnameParse(url).toLowerCase();
-    let userId = template.find("[name='userId']").value;
-
-    subscribeViaForm(hostname, userId);
-
-    if (Meteor.userId()) {
-      const cloneId = Session.get("currentCloneId");
-      Meteor.call('subInsertByClone', cloneId, hostname, userId);
-      console.log("sub inserted:", hostname, userId, "by", cloneId);
-    }
-
-    document.getElementById("subscribe").reset();
+    const url = template.find("[name='url']").value;
+    const hostname = hostnameParse(url).toLowerCase();
+    const userId = template.find("[name='userId']").value;
+    FlowRouter.go(`/follow?hostname=${hostname}&userId=${userId}`)
   }
 });
 
-Template.readerSubsWrapper.onCreated(function () {
-  this.autorun(() => {
-    // if currentCloneId was set, then check if it belongs to current user
-    if (! Clones.findOne(Session.get("currentCloneId"))) {
-      // if not, then set again
-      Session.set("currentCloneId", Clones.findOne()._id);
-    }
-    this.subscribe('pieceCurrentCloneSubs', Session.get("currentCloneId"));
-    console.log('subscribe: pieceCurrentCloneSubs by', Session.get("currentCloneId"));
-  });
-})
-Template.readerSubsWrapper.helpers({
+Template.dynamicSubs.helpers({
   hasSub() {
     return Subs.findOne();
   }
 })
 
-Template.readerPiecesWrapper.onCreated(function () {
+Template.readerPieces.onCreated(function () {
   this.autorun(function () {
     reset();
-    console.log("Reset connections, collections and subscriptions")
+
     let listsCursor = Subs.find();
     let lists = listsCursor.fetch();
 
@@ -170,7 +158,7 @@ Template.readerPiecesWrapper.onCreated(function () {
     });
   });
 })
-Template.readerPiecesWrapper.helpers({
+Template.readerPieces.helpers({
   hasPiece() {
     return Pieces.findOne();
   },
@@ -179,46 +167,38 @@ Template.readerPiecesWrapper.helpers({
   }
 })
 
-Template.readerDemo.onCreated(function () {
-  this.subscribed = new ReactiveVar(false);
+Template.readerPiecesDemo.onCreated(function () {
+  const hostname = "piece.meteor.com";
+  const userId = "Eqrz7jo3YcMeabNdg";
+  previewViaForm(hostname, userId);
 })
-Template.readerDemo.helpers({
-  subscribed() {
-    return Template.instance().subscribed.get();
+Template.readerPiecesDemo.helpers({
+  hasPiece() {
+    return PiecesPreview.findOne();
   },
   pieces() {
-    return Pieces.find({}, {sort: {createdAt: -1}});
+    return PiecesPreview.find({}, {sort: {createdAt: -1}});
   }
 })
-Template.readerDemo.events({
-  'click [data-action=subscribe]': function (event, template) {
-    event.preventDefault();
-    let hostname = "piece.meteor.com";
-    let userId = "492WZqeqCxrDqfG5u";
-    subscribeViaForm(hostname, userId);
-    template.subscribed.set(true);
-  }
-});
 
-Template.followingSubsWrapper.helpers({
+Template.followingSubs.helpers({
   subs() {
     return Subs.find({}, {sort: {hostname: 1}});
   }
 })
 
-Template.followPiecesWrapper.onCreated(function () {
+Template.followPieces.onCreated(function () {
   const hostname = FlowRouter.getQueryParam("hostname");
   const userId = FlowRouter.getQueryParam("userId");
-  console.log("subscribeViaForm", hostname, userId);
-  subscribeViaForm(hostname, userId);
+  previewViaForm(hostname, userId);
 })
-Template.followPiecesWrapper.helpers({
+Template.followPieces.helpers({
   hasPiece() {
-    return Pieces.findOne();
+    return PiecesPreview.findOne();
   },
   pieces() {
     let userId = FlowRouter.getQueryParam("userId");
-    return Pieces.find({ownerId: userId}, {sort: {createdAt: -1}});
+    return PiecesPreview.find({ownerId: userId}, {sort: {createdAt: -1}});
   }
 })
 
@@ -229,18 +209,6 @@ Template.followForm.helpers({
   userId() {
     return FlowRouter.getQueryParam("userId");
   }
-})
-
-Template.followButtonWrapper.onCreated(function () {
-  this.autorun(() => {
-    // if currentCloneId was set, then check if it belongs to current user
-    if (! Clones.findOne(Session.get("currentCloneId"))) {
-      // if not, then set again
-      Session.set("currentCloneId", Clones.findOne()._id);
-    }
-    this.subscribe('pieceCurrentCloneSubs', Session.get("currentCloneId"));
-    console.log('subscribe: pieceCurrentCloneSubs by', Session.get("currentCloneId"));
-  });
 })
 
 Template.followButton.onCreated(function () {
@@ -264,8 +232,11 @@ Template.followButton.events({
 
     if (Meteor.userId()) {
       const cloneId = Session.get("currentCloneId");
-      Meteor.call('subInsertByClone', cloneId, hostname, userId);
-      console.log("follow", hostname, userId, "by", cloneId);
+      Meteor.call('subInsertByClone', cloneId, hostname, userId, function (err, result) {
+        if (!err) {
+          console.log("follow:", hostname, userId, "by", cloneId);
+        }
+      });
     }
   },
   'click [data-action=unfollow]': function (event, template) {
@@ -275,11 +246,14 @@ Template.followButton.events({
 
     if (Meteor.userId()) {
       const cloneId = Session.get("currentCloneId");
-      Meteor.call('subRemoveByClone', cloneId, hostname, userId, function () {
+      Meteor.call('subRemoveByClone', cloneId, hostname, userId, function (err, result) {
+        if (err) {
+          return;
+        }
         if (Pieces.findOne({ownerId: userId})) {
           Pieces.remove({ownerId: userId});
         }
-        console.log("unfollow", hostname, userId, "by", cloneId);
+        console.log("unfollow:", hostname, userId, "by", cloneId);
       });
     }
   },
@@ -291,16 +265,28 @@ Template.followButton.events({
   }
 })
 
-Template.readerClonesWrapper.onCreated(function () {
-  // set currentCloneId with first clone's id if it wasn't set before
+Template.clonesWrapper.onCreated(function () {
+  // set currentCloneId with current user's id if it wasn't set before
   Session.setDefault("currentCloneId", Meteor.userId());
   this.subscribe('pieceCurrentUserClones');
   console.log('subscribe: pieceCurrentUserClones');
 })
 
+Template.subsWrapper.onCreated(function () {
+  this.autorun(() => {
+    // if currentCloneId was set, then check if it belongs to current user
+    if (! Clones.findOne(Session.get("currentCloneId"))) {
+      // if not, then set again
+      Session.set("currentCloneId", Clones.findOne()._id);
+    }
+    this.subscribe('pieceCurrentCloneSubs', Session.get("currentCloneId"));
+    console.log('subscribe: pieceCurrentCloneSubs by', Session.get("currentCloneId"));
+  });
+})
+
 switchClone = () => {
   Pieces.remove({});
-  reset();
+  // reset();
   const cloneId = Session.get("currentCloneId");
   if (cloneId === "shshXASCNxsgkvksX") {
     Session.set("currentCloneId", "5NfXQG6HwBCosBEoM");
