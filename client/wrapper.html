@@ -1,0 +1,19 @@
+<template name="clonesWrapper">
+  {{#if Template.subscriptionsReady}}
+    {{> Template.contentBlock}}
+  {{else}}
+    <ul class="list-group">
+      <li class="list-group-item">Loading clones...</li>
+    </ul>
+  {{/if}}
+</template>
+
+<template name="subsWrapper">
+  {{#if Template.subscriptionsReady}}
+    {{> Template.contentBlock}}
+  {{else}}
+    <ul class="list-group">
+      <li class="list-group-item">Loading subs...</li>
+    </ul>
+  {{/if}}
+</template>

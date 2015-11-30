@@ -4,10 +4,28 @@
       {{> navbar}}
     </div>
 
-    {{> Template.dynamic template=content}}
+    {{#if currentUser}}
+      {{> private}}
+    {{else}}
+      {{> public}}
+    {{/if}}
   </div>
 
   {{> ribbon}}
+</template>
+
+<template name="private">
+  {{#clonesWrapper}}
+    {{#subsWrapper}}
+      {{> Template.dynamic template=subForm}}
+      {{> Template.dynamic template=privateContent}}
+    {{/subsWrapper}}
+  {{/clonesWrapper}}
+</template>
+
+<template name="public">
+  {{> Template.dynamic template=subForm}}
+  {{> Template.dynamic template=publicContent}}
 </template>
 
 <template name="navbar">
@@ -16,11 +34,11 @@
       <li class="nav-item active">
         <div class="nav-link">{{> status}}</div>
       </li>
+      <li class="nav-item {{isActiveRoute 'reader'}}">
+        <a class="nav-link" href="/">Reader</a>
+      </li>
 
       {{#if currentUser}}
-        <li class="nav-item {{isActiveRoute 'home'}}">
-          <a class="nav-link" href="/">Reader</a>
-        </li>
         <li class="nav-item {{isActiveRoute 'following'}}">
           <a class="nav-link" href="/following">Following</a>
         </li>
