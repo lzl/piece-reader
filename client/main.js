@@ -1,3 +1,15 @@
+Template.registerHelper('fromNow', (timestamp) => {
+  const time = timestamp.getTime();
+  const between = (Date.now() - time) / 1000;
+  if (between < 3600) {
+    return ~~(between / 60) + 'm';
+  } else if (between < 86400) {
+    return ~~(between / 3600) + 'h';
+  } else {
+    return ~~(between / 86400) + 'd'
+  }
+});
+
 Tracker.autorun(function () {
   console.log("server connection status:", Meteor.status().status, new Date());
 });

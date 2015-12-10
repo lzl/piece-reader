@@ -89,7 +89,7 @@
       {{content}}
     </p>
     <p class="card-text">
-      <small class="text-muted">Piece ID: {{_id}}</small>
+      <small class="text-muted">{{fromNow createdAt}} · Piece ID: {{_id}}</small>
     </p>
   </div>
 </template>
@@ -125,7 +125,10 @@
   <ul class="list-group">
     {{#if hasPiece}}
       {{#each pieces}}
-        <li class="list-group-item">{{owner}}: {{content}}</li>
+        <li class="list-group-item">
+          {{owner}}: {{content}}
+          <small class="text-muted pull-right">{{fromNow createdAt}}</small>
+        </li>
       {{/each}}
     {{else}}
       <li class="list-group-item">Fetching pieces...</li>
