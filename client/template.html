@@ -100,10 +100,17 @@
 
     <div class="list-group">
       {{#each userId}}
-        <a href="/follow?hostname={{../hostname}}&userId={{this}}" class="list-group-item">User ID: {{this}}</a>
+        {{> followingSubDetail hostname=../hostname userId=this}}
       {{/each}}
     </div>
   </div>
+</template>
+
+<template name="followingSubDetail">
+  <a href="/follow?hostname={{hostname}}&userId={{userId}}" class="list-group-item">
+    {{username}}
+    <small class="text-muted">({{userId}})</small>
+  </a>
 </template>
 
 <template name="previewPieces">

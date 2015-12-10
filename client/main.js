@@ -19,7 +19,7 @@ reset();
 
 const connect = function (hostname, userId) {
   console.log("connect:", hostname, userId);
-  Connections[hostname] = DDP.connect(`https://${hostname}`);
+  Connections[hostname] = DDP.connect(`http://${hostname}`);
   Collections[hostname] = new Mongo.Collection('pieces', {connection: Connections[hostname]});
   if (userId.constructor === Array) {
     Subscriptions[hostname] = Connections[hostname].subscribe("pieceMultiUserPosts", userId);
@@ -82,7 +82,7 @@ const subscribeViaForm = function (hostname, userId) {
 
 const previewViaForm = function (hostname, userId) {
   console.log("previewViaForm:", hostname, userId);
-  const connection = DDP.connect(`https://${hostname}`);
+  const connection = DDP.connect(`http://${hostname}`);
   PiecesPreview = new Mongo.Collection('pieces', {connection: connection});
   const subscription = connection.subscribe("pieceSingleClonePosts", userId);
 }
@@ -187,6 +187,29 @@ Template.followingSubs.helpers({
   }
 })
 
+Template.followingSubDetail.onCreated(function () {
+  this.username = new ReactiveVar();
+  const hostname = this.data.hostname;
+  const userId = this.data.userId;
+  const connection = DDP.connect(`http://${hostname}`);
+  this.clones = new Mongo.Collection('clones', {connection: connection});
+  const subscription = connection.subscribe("pieceSingleCloneProfile", userId);
+  this.autorun(() => {
+    if (subscription.ready()) {
+      const username = this.clones.findOne({_id: userId}).name;
+      this.username.set(username);
+    } else {
+      this.username.set("fetching");
+    }
+  })
+})
+Template.followingSubDetail.helpers({
+  username() {
+    const instance = Template.instance();
+    return instance.username.get();
+  }
+})
+
 Template.previewPieces.onCreated(function () {
   const hostname = FlowRouter.getQueryParam("hostname");
   const userId = FlowRouter.getQueryParam("userId");
@@ -204,7 +227,7 @@ Template.previewPieces.helpers({
 
 Template.followForm.helpers({
   URL() {
-    return "https://" + FlowRouter.getQueryParam("hostname");
+    return "http://" + FlowRouter.getQueryParam("hostname");
   },
   userId() {
     return FlowRouter.getQueryParam("userId");
