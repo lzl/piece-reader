@@ -60,6 +60,10 @@
 </template>
 
 <template name="readerPieces">
+  {{#unless observationIsDone}}
+    {{> readerPiecesProgress percentage=percentage}}
+  {{/unless}}
+
   {{#if hasPiece}}
     {{#each pieces}}
       {{> readerPiece}}
@@ -69,6 +73,10 @@
       <li class="list-group-item">Fetching pieces...</li>
     </ul>
   {{/if}}
+</template>
+
+<template name="readerPiecesProgress">
+  <progress class="progress" value="{{percentage}}" max="100">{{percentage}}%</progress>
 </template>
 
 <template name="readerPiece">

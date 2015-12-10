@@ -28,10 +28,13 @@ const connect = function (hostname, userId) {
   }
 };
 
-const observe = function (handle, hostname) {
+const observe = function (handle, hostname, subscriptionIsReady) {
   Tracker.autorun(function (c) {
     if (handle.ready()) {
       console.log("subscription from", hostname, "is ready");
+      Tracker.nonreactive(function () {
+        subscriptionIsReady();
+      })
       if (Collections[hostname]) {
         let cursor = Collections[hostname].find();
         let cursorHandle = cursor.observeChanges({
@@ -141,11 +144,16 @@ Template.hasSubOrNot.helpers({
 })
 
 Template.readerPieces.onCreated(function () {
+  const instance = Template.instance();
+  this.data.observedHostNum = new ReactiveVar(0);
+  this.data.totalHostNum = new ReactiveVar(0);
+
   this.autorun(function () {
     reset();
 
     let listsCursor = Subs.find();
     let lists = listsCursor.fetch();
+    instance.data.totalHostNum.set(listsCursor.count());
 
     console.log("subs:", lists);
     _.each(lists, function (list) {
@@ -154,7 +162,9 @@ Template.readerPieces.onCreated(function () {
 
     console.log("observation begins");
     _.each(Subscriptions, function (handle, hostname) {
-      observe(handle, hostname);
+      observe(handle, hostname, () => {
+        instance.data.observedHostNum.set(instance.data.observedHostNum.get() + 1);
+      });
     });
   });
 })
@@ -164,6 +174,14 @@ Template.readerPieces.helpers({
   },
   pieces() {
     return Pieces.find({}, {sort: {createdAt: -1}});
+  },
+  percentage() {
+    const instance = Template.instance();
+    return instance.data.observedHostNum.get() / instance.data.totalHostNum.get() * 100;
+  },
+  observationIsDone() {
+    const instance = Template.instance();
+    return instance.data.observedHostNum.get() === instance.data.totalHostNum.get();
   }
 })
 
