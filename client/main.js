@@ -187,19 +187,25 @@ Template.followingSubs.helpers({
   }
 })
 
-Template.followingSubDetail.onCreated(function () {
-  this.username = new ReactiveVar();
+Template.followingSub.onCreated(function () {
   const hostname = this.data.hostname;
-  const userId = this.data.userId;
+  const userIds = this.data.userId;
   const connection = DDP.connect(`http://${hostname}`);
-  this.clones = new Mongo.Collection('clones', {connection: connection});
-  const subscription = connection.subscribe("pieceSingleCloneProfile", userId);
+  this.data.clones = new Mongo.Collection('clones', {connection: connection});
+  const subscription = connection.subscribe("pieceMultiCloneProfiles", userIds);
+  this.data.ready = new ReactiveVar(false);
   this.autorun(() => {
-    if (subscription.ready()) {
-      const username = this.clones.findOne({_id: userId}).name;
+    this.data.ready.set(subscription.ready());
+  })
+})
+
+Template.followingSubDetail.onCreated(function () {
+  this.username = new ReactiveVar("loading");
+  const userId = this.data.userId;
+  this.autorun(() => {
+    if (this.data.ready.get()) {
+      const username = this.data.clones.findOne({_id: userId}).name;
       this.username.set(username);
-    } else {
-      this.username.set("fetching");
     }
   })
 })

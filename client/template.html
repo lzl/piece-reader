@@ -100,7 +100,7 @@
 
     <div class="list-group">
       {{#each userId}}
-        {{> followingSubDetail hostname=../hostname userId=this}}
+        {{> followingSubDetail hostname=../hostname userId=this clones=../clones ready=../ready}}
       {{/each}}
     </div>
   </div>
