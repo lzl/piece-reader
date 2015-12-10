@@ -19,7 +19,7 @@ reset();
 
 const connect = function (hostname, userId) {
   console.log("connect:", hostname, userId);
-  Connections[hostname] = DDP.connect(`http://${hostname}`);
+  Connections[hostname] = DDP.connect(`https://${hostname}`);
   Collections[hostname] = new Mongo.Collection('pieces', {connection: Connections[hostname]});
   if (userId.constructor === Array) {
     Subscriptions[hostname] = Connections[hostname].subscribe("pieceMultiUserPosts", userId);
@@ -82,7 +82,7 @@ const subscribeViaForm = function (hostname, userId) {
 
 const previewViaForm = function (hostname, userId) {
   console.log("previewViaForm:", hostname, userId);
-  const connection = DDP.connect(`http://${hostname}`);
+  const connection = DDP.connect(`https://${hostname}`);
   PiecesPreview = new Mongo.Collection('pieces', {connection: connection});
   const subscription = connection.subscribe("pieceSingleClonePosts", userId);
 }
@@ -190,7 +190,7 @@ Template.followingSubs.helpers({
 Template.followingSub.onCreated(function () {
   const hostname = this.data.hostname;
   const userIds = this.data.userId;
-  const connection = DDP.connect(`http://${hostname}`);
+  const connection = DDP.connect(`https://${hostname}`);
   this.data.clones = new Mongo.Collection('clones', {connection: connection});
   const subscription = connection.subscribe("pieceMultiCloneProfiles", userIds);
   this.data.ready = new ReactiveVar(false);
@@ -233,7 +233,7 @@ Template.previewPieces.helpers({
 
 Template.followForm.helpers({
   URL() {
-    return "http://" + FlowRouter.getQueryParam("hostname");
+    return "https://" + FlowRouter.getQueryParam("hostname");
   },
   userId() {
     return FlowRouter.getQueryParam("userId");
