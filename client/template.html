@@ -89,7 +89,7 @@
       {{content}}
     </p>
     <p class="card-text">
-      <small class="text-muted">{{fromNow createdAt}} · Piece ID: {{_id}}</small>
+      <small class="text-muted">{{createdFromNow createdAt}} · Piece ID: {{_id}}</small>
     </p>
   </div>
 </template>
@@ -118,6 +118,7 @@
   <a href="/follow?hostname={{hostname}}&userId={{userId}}" class="list-group-item">
     {{username}}
     <small class="text-muted">({{userId}})</small>
+    <small class="text-muted pull-right">{{updatedFromNow updatedAt}}</small>
   </a>
 </template>
 
@@ -127,7 +128,7 @@
       {{#each pieces}}
         <li class="list-group-item">
           {{owner}}: {{content}}
-          <small class="text-muted pull-right">{{fromNow createdAt}}</small>
+          <small class="text-muted pull-right">{{createdFromNow createdAt}}</small>
         </li>
       {{/each}}
     {{else}}

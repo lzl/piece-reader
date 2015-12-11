@@ -1,4 +1,7 @@
-Template.registerHelper('fromNow', (timestamp) => {
+Template.registerHelper('createdFromNow', (timestamp) => {
+  if (timestamp === undefined) {
+    return 'unknown';
+  }
   const time = timestamp.getTime();
   const between = (Date.now() - time) / 1000;
   if (between < 3600) {
@@ -6,7 +9,21 @@ Template.registerHelper('fromNow', (timestamp) => {
   } else if (between < 86400) {
     return ~~(between / 3600) + 'h';
   } else {
-    return ~~(between / 86400) + 'd'
+    return ~~(between / 86400) + 'd';
+  }
+});
+Template.registerHelper('updatedFromNow', (timestamp) => {
+  if (timestamp === undefined) {
+    return 'unknown';
+  }
+  const time = timestamp.getTime();
+  const between = (Date.now() - time) / 1000;
+  if (between < 3600) {
+    return 'just updated';
+  } else if (between < 86400) {
+    return 'updated today';
+  } else {
+    return ~~(between / 86400) + 'd';
   }
 });
 
@@ -31,7 +48,7 @@ reset();
 
 const connect = function (hostname, userId) {
   console.log("connect:", hostname, userId);
-  Connections[hostname] = DDP.connect(`https://${hostname}`);
+  Connections[hostname] = DDP.connect(`http://${hostname}`);
   Collections[hostname] = new Mongo.Collection('pieces', {connection: Connections[hostname]});
   if (userId.constructor === Array) {
     Subscriptions[hostname] = Connections[hostname].subscribe("pieceMultiUserPosts", userId);
@@ -97,7 +114,7 @@ const subscribeViaForm = function (hostname, userId) {
 
 const previewViaForm = function (hostname, userId) {
   console.log("previewViaForm:", hostname, userId);
-  const connection = DDP.connect(`https://${hostname}`);
+  const connection = DDP.connect(`http://${hostname}`);
   PiecesPreview = new Mongo.Collection('pieces', {connection: connection});
   const subscription = connection.subscribe("pieceSingleClonePosts", userId);
 }
@@ -220,7 +237,7 @@ Template.followingSubs.helpers({
 Template.followingSub.onCreated(function () {
   const hostname = this.data.hostname;
   const userIds = this.data.userId;
-  const connection = DDP.connect(`https://${hostname}`);
+  const connection = DDP.connect(`http://${hostname}`);
   this.data.clones = new Mongo.Collection('clones', {connection: connection});
   const subscription = connection.subscribe("pieceMultiCloneProfiles", userIds);
   this.data.ready = new ReactiveVar(false);
@@ -230,12 +247,15 @@ Template.followingSub.onCreated(function () {
 })
 
 Template.followingSubDetail.onCreated(function () {
-  this.username = new ReactiveVar("loading");
+  this.username = new ReactiveVar();
+  this.updatedAt = new ReactiveVar();
   const userId = this.data.userId;
   this.autorun(() => {
     if (this.data.ready.get()) {
-      const username = this.data.clones.findOne({_id: userId}).name;
-      this.username.set(username);
+      const clone = this.data.clones.findOne({_id: userId});
+      console.log(clone)
+      this.username.set(clone.name);
+      this.updatedAt.set(clone.updatedAt);
     }
   })
 })
@@ -243,6 +263,10 @@ Template.followingSubDetail.helpers({
   username() {
     const instance = Template.instance();
     return instance.username.get();
+  },
+  updatedAt() {
+    const instance = Template.instance();
+    return instance.updatedAt.get();
   }
 })
 
@@ -263,7 +287,7 @@ Template.previewPieces.helpers({
 
 Template.followForm.helpers({
   URL() {
-    return "https://" + FlowRouter.getQueryParam("hostname");
+    return "http://" + FlowRouter.getQueryParam("hostname");
   },
   userId() {
     return FlowRouter.getQueryParam("userId");
