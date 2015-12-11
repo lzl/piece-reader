@@ -36,6 +36,7 @@ Accounts.ui.config({
 });
 
 Pieces = new Mongo.Collection(null); // Local collection
+LocalClones = new Mongo.Collection(null); // Local collection
 
 const reset = function () {
   console.log("reset: local connections, collections and subscriptions")
@@ -48,7 +49,7 @@ reset();
 
 const connect = function (hostname, userId) {
   console.log("connect:", hostname, userId);
-  Connections[hostname] = DDP.connect(`http://${hostname}`);
+  Connections[hostname] = DDP.connect(`https://${hostname}`);
   Collections[hostname] = new Mongo.Collection('pieces', {connection: Connections[hostname]});
   if (userId.constructor === Array) {
     Subscriptions[hostname] = Connections[hostname].subscribe("pieceMultiUserPosts", userId);
@@ -114,7 +115,7 @@ const subscribeViaForm = function (hostname, userId) {
 
 const previewViaForm = function (hostname, userId) {
   console.log("previewViaForm:", hostname, userId);
-  const connection = DDP.connect(`http://${hostname}`);
+  const connection = DDP.connect(`https://${hostname}`);
   PiecesPreview = new Mongo.Collection('pieces', {connection: connection});
   const subscription = connection.subscribe("pieceSingleClonePosts", userId);
 }
@@ -235,15 +236,48 @@ Template.followingSubs.helpers({
 })
 
 Template.followingSub.onCreated(function () {
+  const subsLength = _.chain(Subs.find().fetch()).pluck('userId').flatten().value().length;
+  if (LocalClones.find().count() === subsLength) {
+    console.log("found local clones")
+    return;
+  }
+
   const hostname = this.data.hostname;
   const userIds = this.data.userId;
-  const connection = DDP.connect(`http://${hostname}`);
+  const connection = DDP.connect(`https://${hostname}`);
   this.data.clones = new Mongo.Collection('clones', {connection: connection});
-  const subscription = connection.subscribe("pieceMultiCloneProfiles", userIds);
-  this.data.ready = new ReactiveVar(false);
-  this.autorun(() => {
-    this.data.ready.set(subscription.ready());
-  })
+  const subscription = connection.subscribe("pieceMultiCloneProfiles", this.data.userId);
+  // this.data.ready = new ReactiveVar(false);
+
+  const cursor = this.data.clones.find();
+  const cursorHandle = cursor.observeChanges({
+    added(id, clone) {
+      let existed = undefined;
+      Tracker.nonreactive(function () {
+        existed = LocalClones.findOne(id);
+      })
+      if (existed) {
+        console.log("found existed local clone");
+        return;
+      } else {
+        console.log("local clone added:", id);
+        clone._id = id;
+        LocalClones.insert(clone);
+      }
+    },
+    changed(id, fields) {
+      console.log("local clone changed:", id, fields);
+      LocalClones.update({_id: id}, {$set: fields});
+    },
+    removed(id) {
+      console.log("local clone removed:", id);
+      LocalClones.remove(id);
+    }
+  });
+
+  // this.autorun(() => {
+  //   this.data.ready.set(subscription.ready());
+  // })
 })
 
 Template.followingSubDetail.onCreated(function () {
@@ -251,9 +285,8 @@ Template.followingSubDetail.onCreated(function () {
   this.updatedAt = new ReactiveVar();
   const userId = this.data.userId;
   this.autorun(() => {
-    if (this.data.ready.get()) {
-      const clone = this.data.clones.findOne({_id: userId});
-      console.log(clone)
+    if (LocalClones.find({_id: userId}).count()) {
+      const clone = LocalClones.findOne({_id: userId});
       this.username.set(clone.name);
       this.updatedAt.set(clone.updatedAt);
     }
@@ -287,7 +320,7 @@ Template.previewPieces.helpers({
 
 Template.followForm.helpers({
   URL() {
-    return "http://" + FlowRouter.getQueryParam("hostname");
+    return "https://" + FlowRouter.getQueryParam("hostname");
   },
   userId() {
     return FlowRouter.getQueryParam("userId");
