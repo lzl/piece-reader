@@ -352,18 +352,15 @@ Template.subsWrapper.helpers({
 Template.piecesWrapper.onCreated(function () {
   const instance = this;
   instance.state = new ReactiveDict();
-  instance.state.setDefault({
-    observedHostNum: 0,
-    totalHostNum: 0
-  });
-
-  instance.connections = Object.create(null);
-  instance.collections = Object.create(null);
-  instance.subscriptions = Object.create(null);
 
   instance.autorun(() => {
+    instance.connections = Object.create(null);
+    instance.collections = Object.create(null);
+    instance.subscriptions = Object.create(null);
+
     const subsCursor = Subs.find();
     const subs = subsCursor.fetch();
+    instance.state.set('observedHostNum', 0);
     instance.state.set('totalHostNum', subsCursor.count());
 
     console.log("subs:", subs);
@@ -416,6 +413,12 @@ Template.piecesWrapper.onCreated(function () {
       })
     })
   });
+
+  // for debug
+  instance.autorun(() => {
+    console.log('observedHostNum', instance.state.get('observedHostNum'))
+    console.log('totalHostNum', instance.state.get('totalHostNum'))
+  })
 
   instance.hasPiece = () => {
     return LocalPieces.findOne();
