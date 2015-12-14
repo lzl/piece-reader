@@ -35,17 +35,8 @@ Accounts.ui.config({
   passwordSignupFields: "USERNAME_ONLY"
 });
 
-Pieces = new Mongo.Collection(null); // Local collection
+LocalPieces = new Mongo.Collection(null); // Local collection
 LocalClones = new Mongo.Collection(null); // Local collection
-
-const reset = function () {
-  console.log("reset: local connections, collections and subscriptions")
-  Connections = Object.create(null);
-  Collections = Object.create(null);
-  Subscriptions = Object.create(null);
-};
-
-reset();
 
 const connect = function (hostname, userId) {
   console.log("connect:", hostname, userId);
@@ -113,11 +104,11 @@ const subscribeViaForm = function (hostname, userId) {
   }
 }
 
-const previewViaForm = function (hostname, userId) {
+const previewViaForm = function (instance, hostname, userId) {
   console.log("previewViaForm:", hostname, userId);
-  const connection = DDP.connect(`https://${hostname}`);
-  PiecesPreview = new Mongo.Collection('pieces', {connection: connection});
-  const subscription = connection.subscribe("pieceSingleClonePosts", userId);
+  instance.connection = DDP.connect(`https://${hostname}`);
+  instance.collection = new Mongo.Collection('pieces', {connection: instance.connection});
+  instance.subscription = instance.connection.subscribe("pieceSingleClonePosts", userId);
 }
 
 Template.status.helpers({
@@ -167,65 +158,20 @@ Template.previewForm.events({
   }
 });
 
-Template.hasSubOrNot.helpers({
-  hasSub() {
-    return Subs.findOne();
-  }
-})
-
-Template.readerPieces.onCreated(function () {
-  const instance = Template.instance();
-  this.data.observedHostNum = new ReactiveVar(0);
-  this.data.totalHostNum = new ReactiveVar(0);
-
-  this.autorun(function () {
-    reset();
-
-    let listsCursor = Subs.find();
-    let lists = listsCursor.fetch();
-    instance.data.totalHostNum.set(listsCursor.count());
-
-    console.log("subs:", lists);
-    _.each(lists, function (list) {
-      connect(list.hostname, list.userId);
-    });
-
-    console.log("observation begins");
-    _.each(Subscriptions, function (handle, hostname) {
-      observe(handle, hostname, () => {
-        instance.data.observedHostNum.set(instance.data.observedHostNum.get() + 1);
-      });
-    });
-  });
-})
-Template.readerPieces.helpers({
-  hasPiece() {
-    return Pieces.findOne();
-  },
-  pieces() {
-    return Pieces.find({}, {sort: {createdAt: -1}});
-  },
-  percentage() {
-    const instance = Template.instance();
-    return instance.data.observedHostNum.get() / instance.data.totalHostNum.get() * 100;
-  },
-  observationIsDone() {
-    const instance = Template.instance();
-    return instance.data.observedHostNum.get() === instance.data.totalHostNum.get();
-  }
-})
-
 Template.demoPieces.onCreated(function () {
+  const instance = this;
   const hostname = "piece.meteor.com";
   const userId = "Eqrz7jo3YcMeabNdg";
-  previewViaForm(hostname, userId);
+  previewViaForm(instance, hostname, userId);
 })
 Template.demoPieces.helpers({
   hasPiece() {
-    return PiecesPreview.findOne();
+    const instance = Template.instance();
+    return instance.collection.findOne();
   },
   pieces() {
-    return PiecesPreview.find({}, {sort: {createdAt: -1}});
+    const instance = Template.instance();
+    return instance.collection.find({}, {sort: {createdAt: -1}});
   }
 })
 
@@ -236,20 +182,19 @@ Template.followingSubs.helpers({
 })
 
 Template.followingSub.onCreated(function () {
+  const instance = this;
   const subsLength = _.chain(Subs.find().fetch()).pluck('userId').flatten().value().length;
   if (LocalClones.find().count() === subsLength) {
     console.log("found local clones")
     return;
   }
+  const hostname = instance.data.sub.hostname;
+  const userIds = instance.data.sub.userId;
+  instance.connection = DDP.connect(`https://${hostname}`);
+  instance.collection = new Mongo.Collection('clones', {connection: instance.connection});
+  instance.subscription = instance.connection.subscribe("pieceMultiCloneProfiles", userIds);
 
-  const hostname = this.data.hostname;
-  const userIds = this.data.userId;
-  const connection = DDP.connect(`https://${hostname}`);
-  this.data.clones = new Mongo.Collection('clones', {connection: connection});
-  const subscription = connection.subscribe("pieceMultiCloneProfiles", this.data.userId);
-  // this.data.ready = new ReactiveVar(false);
-
-  const cursor = this.data.clones.find();
+  const cursor = instance.collection.find();
   const cursorHandle = cursor.observeChanges({
     added(id, clone) {
       let existed = undefined;
@@ -274,47 +219,46 @@ Template.followingSub.onCreated(function () {
       LocalClones.remove(id);
     }
   });
-
-  // this.autorun(() => {
-  //   this.data.ready.set(subscription.ready());
-  // })
 })
 
 Template.followingSubDetail.onCreated(function () {
-  this.username = new ReactiveVar();
-  this.updatedAt = new ReactiveVar();
-  const userId = this.data.userId;
+  const instance = this;
+  instance.state = new ReactiveDict();
   this.autorun(() => {
+    const userId = this.data.userId;
     if (LocalClones.find({_id: userId}).count()) {
       const clone = LocalClones.findOne({_id: userId});
-      this.username.set(clone.name);
-      this.updatedAt.set(clone.updatedAt);
+      instance.state.set('username', clone.name);
+      instance.state.set('updatedAt', clone.updatedAt);
     }
   })
 })
 Template.followingSubDetail.helpers({
   username() {
     const instance = Template.instance();
-    return instance.username.get();
+    return instance.state.get('username');
   },
   updatedAt() {
     const instance = Template.instance();
-    return instance.updatedAt.get();
+    return instance.state.get('updatedAt');
   }
 })
 
 Template.previewPieces.onCreated(function () {
+  const instance = this;
   const hostname = FlowRouter.getQueryParam("hostname");
   const userId = FlowRouter.getQueryParam("userId");
-  previewViaForm(hostname, userId);
+  previewViaForm(instance, hostname, userId);
 })
 Template.previewPieces.helpers({
   hasPiece() {
-    return PiecesPreview.findOne();
+    const instance = Template.instance();
+    return instance.collection.findOne();
   },
   pieces() {
+    const instance = Template.instance();
     const userId = FlowRouter.getQueryParam("userId");
-    return PiecesPreview.find({ownerId: userId}, {sort: {createdAt: -1}});
+    return instance.collection.find({ownerId: userId}, {sort: {createdAt: -1}});
   }
 })
 
@@ -366,8 +310,8 @@ Template.followButton.events({
         if (err) {
           return;
         }
-        if (Pieces.findOne({ownerId: userId})) {
-          Pieces.remove({ownerId: userId});
+        if (LocalPieces.findOne({ownerId: userId})) {
+          LocalPieces.remove({ownerId: userId});
         }
         console.log("unfollow:", hostname, userId, "by", cloneId);
       });
@@ -398,4 +342,106 @@ Template.subsWrapper.onCreated(function () {
     this.subscribe('pieceCurrentCloneSubs', Session.get("currentCloneId"));
     console.log('subscribe: pieceCurrentCloneSubs by', Session.get("currentCloneId"));
   });
+})
+Template.subsWrapper.helpers({
+  hasSub() {
+    return Subs.findOne()
+  }
+})
+
+Template.piecesWrapper.onCreated(function () {
+  const instance = this;
+  instance.state = new ReactiveDict();
+  instance.state.setDefault({
+    observedHostNum: 0,
+    totalHostNum: 0
+  });
+
+  instance.connections = Object.create(null);
+  instance.collections = Object.create(null);
+  instance.subscriptions = Object.create(null);
+
+  instance.autorun(() => {
+    const subsCursor = Subs.find();
+    const subs = subsCursor.fetch();
+    instance.state.set('totalHostNum', subsCursor.count());
+
+    console.log("subs:", subs);
+    _.each(subs, (sub) => {
+      const hostname = sub.hostname;
+      const userId = sub.userId;
+      instance.connections[hostname] = DDP.connect(`https://${hostname}`);
+      instance.collections[hostname] = new Mongo.Collection('pieces', {connection: instance.connections[hostname]});
+      if (userId.constructor === Array) {
+        instance.subscriptions[hostname] = instance.connections[hostname].subscribe("pieceMultiUserPosts", userId);
+      } else {
+        instance.subscriptions[hostname] = instance.connections[hostname].subscribe("pieceSingleClonePosts", userId);
+      }
+    })
+
+    console.log("observation begins");
+    _.each(instance.subscriptions, (handle, hostname) => {
+      Tracker.autorun((c) => {
+        if (handle.ready()) {
+          console.log("subscription from", hostname, "is ready");
+          Tracker.nonreactive(function () {
+            instance.state.set('observedHostNum', instance.state.get('observedHostNum') + 1);
+          })
+          if (instance.collections[hostname]) {
+            let cursor = instance.collections[hostname].find();
+            let cursorHandle = cursor.observeChanges({
+              added: function (id, piece) {
+                let existed = undefined;
+                Tracker.nonreactive(function () {
+                  existed = LocalPieces.findOne(id);
+                })
+                if (existed) {
+                  console.log("found existed piece");
+                  return;
+                } else {
+                  console.log("added:", id);
+                  piece._id = id;
+                  LocalPieces.insert(piece);
+                }
+              },
+              removed: function (id) {
+                console.log("removed:", id);
+                LocalPieces.remove(id);
+              }
+            });
+          } else {
+            c.stop();
+          }
+        }
+      })
+    })
+  });
+
+  instance.hasPiece = () => {
+    return LocalPieces.findOne();
+  }
+  instance.pieces = () => {
+    return LocalPieces.find({}, {sort: {createdAt: -1}});
+  }
+  instance.percentage = () => {
+    return instance.state.get('observedHostNum') / instance.state.get('totalHostNum') * 100;
+  }
+  instance.observationIsDone = () => {
+    return instance.state.get('observedHostNum') === instance.state.get('totalHostNum');
+  }
+})
+Template.piecesWrapper.onDestroyed(function () {
+  return LocalPieces.remove({});
+})
+Template.piecesWrapper.helpers({
+  data() {
+    const instance = Template.instance();
+    return {
+      data: instance.data,
+      hasPiece: instance.hasPiece,
+      pieces: instance.pieces,
+      percentage: instance.percentage,
+      observationIsDone: instance.observationIsDone
+    }
+  }
 })

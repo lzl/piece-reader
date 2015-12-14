@@ -49,24 +49,14 @@
   {{/if}}
 </template>
 
-<template name="hasSubOrNot">
-  {{#if hasSub}}
-    {{> Template.dynamic template=card}}
-  {{else}}
-    <ul class="list-group">
-      <li class="list-group-item">You have no following.</li>
-    </ul>
-  {{/if}}
-</template>
-
 <template name="readerPieces">
   {{#unless observationIsDone}}
     {{> readerPiecesProgress percentage=percentage}}
   {{/unless}}
 
   {{#if hasPiece}}
-    {{#each pieces}}
-      {{> readerPiece}}
+    {{#each piece in pieces}}
+      {{> readerPiece piece=piece}}
     {{/each}}
   {{else}}
     <ul class="list-group">
@@ -82,33 +72,33 @@
 <template name="readerPiece">
   <div class="card card-block">
     <p class="card-text">
-      <strong>{{owner}}</strong>
-      <small class="text-muted">({{ownerId}})</small>
+      <strong>{{piece.owner}}</strong>
+      <small class="text-muted">({{piece.ownerId}})</small>
     </p>
     <p class="card-text">
-      {{content}}
+      {{piece.content}}
     </p>
     <p class="card-text">
-      <small class="text-muted">{{createdFromNow createdAt}} · Piece ID: {{_id}}</small>
+      <small class="text-muted">{{createdFromNow piece.createdAt}} · Piece ID: {{piece._id}}</small>
     </p>
   </div>
 </template>
 
 <template name="followingSubs">
-  {{#each subs}}
-    {{> followingSub}}
+  {{#each sub in subs}}
+    {{> followingSub sub=sub}}
   {{/each}}
 </template>
 
 <template name="followingSub">
   <div class="card card-block">
     <p class="card-text">
-      Hostname: {{hostname}}
+      Hostname: {{sub.hostname}}
     </p>
 
     <div class="list-group">
-      {{#each userId}}
-        {{> followingSubDetail hostname=../hostname userId=this clones=../clones ready=../ready}}
+      {{#each userId in sub.userId}}
+        {{> followingSubDetail hostname=sub.hostname userId=userId}}
       {{/each}}
     </div>
   </div>
@@ -125,10 +115,10 @@
 <template name="previewPieces">
   <ul class="list-group">
     {{#if hasPiece}}
-      {{#each pieces}}
+      {{#each piece in pieces}}
         <li class="list-group-item">
-          {{owner}}: {{content}}
-          <small class="text-muted pull-right">{{createdFromNow createdAt}}</small>
+          {{piece.owner}}: {{piece.content}}
+          <small class="text-muted pull-right">{{createdFromNow piece.createdAt}}</small>
         </li>
       {{/each}}
     {{else}}
@@ -146,8 +136,8 @@
   </div>
 
   {{#if hasPiece}}
-    {{#each pieces}}
-      {{> readerPiece}}
+    {{#each piece in pieces}}
+      {{> readerPiece piece=piece}}
     {{/each}}
   {{else}}
     <ul class="list-group">

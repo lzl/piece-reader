@@ -1,6 +1,6 @@
 <template name="clonesWrapper">
   {{#if Template.subscriptionsReady}}
-    {{> Template.contentBlock}}
+    {{> subsWrapper}}
   {{else}}
     <ul class="list-group">
       <li class="list-group-item">Loading clones...</li>
@@ -10,10 +10,21 @@
 
 <template name="subsWrapper">
   {{#if Template.subscriptionsReady}}
-    {{> Template.contentBlock}}
+    {{#if hasSub}}
+      {{> piecesWrapper}}
+    {{else}}
+      <ul class="list-group">
+        <li class="list-group-item">You have no following.</li>
+      </ul>
+    {{/if}}
   {{else}}
     <ul class="list-group">
       <li class="list-group-item">Loading subs...</li>
     </ul>
   {{/if}}
+</template>
+
+<template name="piecesWrapper">
+  {{> Template.dynamic template=subForm}}
+  {{> Template.dynamic template=privateContent data=data}}
 </template>
