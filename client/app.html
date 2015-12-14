@@ -15,12 +15,7 @@
 </template>
 
 <template name="private">
-  {{#clonesWrapper}}
-    {{#subsWrapper}}
-      {{> Template.dynamic template=subForm}}
-      {{> Template.dynamic template=privateContent}}
-    {{/subsWrapper}}
-  {{/clonesWrapper}}
+  {{> clonesWrapper}}
 </template>
 
 <template name="public">

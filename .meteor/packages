@@ -25,6 +25,7 @@ accounts-password
 accounts-ui
 themeteorchef:jquery-validation
 reactive-var
+reactive-dict
 force-ssl
 browser-policy
 kadira:flow-router

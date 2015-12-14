@@ -49,20 +49,14 @@
   {{/if}}
 </template>
 
-<template name="hasSubOrNot">
-  {{#if hasSub}}
-    {{> Template.dynamic template=card}}
-  {{else}}
-    <ul class="list-group">
-      <li class="list-group-item">You have no following.</li>
-    </ul>
-  {{/if}}
-</template>
-
 <template name="readerPieces">
+  {{#unless observationIsDone}}
+    {{> readerPiecesProgress percentage=percentage}}
+  {{/unless}}
+
   {{#if hasPiece}}
-    {{#each pieces}}
-      {{> readerPiece}}
+    {{#each piece in pieces}}
+      {{> readerPiece piece=piece}}
     {{/each}}
   {{else}}
     <ul class="list-group">
@@ -71,46 +65,61 @@
   {{/if}}
 </template>
 
+<template name="readerPiecesProgress">
+  <progress class="progress" value="{{percentage}}" max="100">{{percentage}}%</progress>
+</template>
+
 <template name="readerPiece">
   <div class="card card-block">
     <p class="card-text">
-      <strong>{{owner}}</strong>
-      <small class="text-muted">({{ownerId}})</small>
+      <strong>{{piece.owner}}</strong>
+      <small class="text-muted">({{piece.ownerId}})</small>
     </p>
     <p class="card-text">
-      {{content}}
+      {{piece.content}}
     </p>
     <p class="card-text">
-      <small class="text-muted">Piece ID: {{_id}}</small>
+      <small class="text-muted">{{createdFromNow piece.createdAt}} · Piece ID: {{piece._id}}</small>
     </p>
   </div>
 </template>
 
 <template name="followingSubs">
-  {{#each subs}}
-    {{> followingSub}}
+  {{#each sub in subs}}
+    {{> followingSub sub=sub}}
   {{/each}}
 </template>
 
 <template name="followingSub">
   <div class="card card-block">
     <p class="card-text">
-      Hostname: {{hostname}}
+      Hostname: {{sub.hostname}}
     </p>
 
     <div class="list-group">
-      {{#each userId}}
-        <a href="/follow?hostname={{../hostname}}&userId={{this}}" class="list-group-item">User ID: {{this}}</a>
+      {{#each userId in sub.userId}}
+        {{> followingSubDetail hostname=sub.hostname userId=userId}}
       {{/each}}
     </div>
   </div>
 </template>
 
+<template name="followingSubDetail">
+  <a href="/follow?hostname={{hostname}}&userId={{userId}}" class="list-group-item">
+    {{username}}
+    <small class="text-muted">({{userId}})</small>
+    <small class="text-muted pull-right">{{updatedFromNow updatedAt}}</small>
+  </a>
+</template>
+
 <template name="previewPieces">
   <ul class="list-group">
     {{#if hasPiece}}
-      {{#each pieces}}
-        <li class="list-group-item">{{owner}}: {{content}}</li>
+      {{#each piece in pieces}}
+        <li class="list-group-item">
+          {{piece.owner}}: {{piece.content}}
+          <small class="text-muted pull-right">{{createdFromNow piece.createdAt}}</small>
+        </li>
       {{/each}}
     {{else}}
       <li class="list-group-item">Fetching pieces...</li>
@@ -127,8 +136,8 @@
   </div>
 
   {{#if hasPiece}}
-    {{#each pieces}}
-      {{> readerPiece}}
+    {{#each piece in pieces}}
+      {{> readerPiece piece=piece}}
     {{/each}}
   {{else}}
     <ul class="list-group">
