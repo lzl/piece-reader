@@ -50,19 +50,21 @@
 </template>
 
 <template name="readerPieces">
-  {{#unless observationIsDone}}
-    {{> readerPiecesProgress percentage=percentage}}
-  {{/unless}}
+  <div class="row">
+    {{#unless observationIsDone}}
+      {{> readerPiecesProgress percentage=percentage}}
+    {{/unless}}
 
-  {{#if hasPiece}}
-    {{#each piece in pieces}}
-      {{> readerPiece piece=piece}}
-    {{/each}}
-  {{else}}
-    <ul class="list-group">
-      <li class="list-group-item">Fetching pieces...</li>
-    </ul>
-  {{/if}}
+    {{#if hasPiece}}
+      {{#each piece in pieces}}
+        {{> readerPiece piece=piece}}
+      {{/each}}
+    {{else}}
+      <ul class="list-group">
+        <li class="list-group-item">Fetching pieces...</li>
+      </ul>
+    {{/if}}
+  </div>
 </template>
 
 <template name="readerPiecesProgress">
@@ -85,9 +87,11 @@
 </template>
 
 <template name="followingSubs">
-  {{#each sub in subs}}
-    {{> followingSub sub=sub}}
-  {{/each}}
+  <div class="row">
+    {{#each sub in subs}}
+      {{> followingSub sub=sub}}
+    {{/each}}
+  </div>
 </template>
 
 <template name="followingSub">
@@ -113,37 +117,43 @@
 </template>
 
 <template name="previewPieces">
-  <ul class="list-group">
-    {{#if hasPiece}}
-      {{#each piece in pieces}}
-        <li class="list-group-item">
-          {{piece.owner}}: {{piece.content}}
-          <small class="text-muted pull-right">{{createdFromNow piece.createdAt}}</small>
-        </li>
-      {{/each}}
-    {{else}}
-      <li class="list-group-item">Fetching pieces...</li>
-    {{/if}}
-  </ul>
+  <div class="row">
+    <ul class="list-group">
+      {{#if hasPiece}}
+        {{#each piece in pieces}}
+          <li class="list-group-item">
+            {{piece.owner}}: {{piece.content}}
+            <small class="text-muted pull-right">{{createdFromNow piece.createdAt}}</small>
+          </li>
+        {{/each}}
+      {{else}}
+        <li class="list-group-item">Fetching pieces...</li>
+      {{/if}}
+    </ul>
+  </div>
 </template>
 
 <template name="demoPieces">
-  <div class="jumbotron">
-    <h1 class="display-2">Welcome to Piece Reader.</h1>
-    <p class="lead">Each piece is a message. You can preview pieces with top form &#8593;.</p>
-    <p>Below &#8595; is Piece's official pieces, for demonstration.</p>
-    <p>For more, you can create an account to follow other's pieces if you know its URL and User ID. When you come back next time, Piece Reader will remember who you followed. Want to publish your own pieces? Check out <a href="https://piece.meteor.com/">Piece</a>.</p>
+  <div class="row">
+    <div class="jumbotron">
+      <h1 class="display-2">Welcome to Piece Reader.</h1>
+      <p class="lead">Each piece is a message. You can preview pieces with top form &#8593;.</p>
+      <p>Below &#8595; is Piece's official pieces, for demonstration.</p>
+      <p>For more, you can create an account to follow other's pieces if you know its URL and User ID. When you come back next time, Piece Reader will remember who you followed. Want to publish your own pieces? Check out <a href="https://piece.meteor.com/">Piece</a>.</p>
+    </div>
   </div>
 
-  {{#if hasPiece}}
-    {{#each piece in pieces}}
-      {{> readerPiece piece=piece}}
-    {{/each}}
-  {{else}}
-    <ul class="list-group">
-      <li class="list-group-item">Fetching demo pieces...</li>
-    </ul>
-  {{/if}}
+  <div class="row">
+    {{#if hasPiece}}
+      {{#each piece in pieces}}
+        {{> readerPiece piece=piece}}
+      {{/each}}
+    {{else}}
+      <ul class="list-group">
+        <li class="list-group-item">Fetching demo pieces...</li>
+      </ul>
+    {{/if}}
+  </div>
 </template>
 
 <template name="signIn">
