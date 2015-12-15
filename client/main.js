@@ -149,11 +149,11 @@ Template.previewForm.onRendered(function () {
   });
 });
 Template.previewForm.events({
-  'submit form': function (event, template) {
+  'submit form': function (event, instance) {
     event.preventDefault();
-    const url = template.find("[name='url']").value;
+    const url = instance.find("[name='url']").value;
     const hostname = hostnameParse(url).toLowerCase();
-    const userId = template.find("[name='userId']").value;
+    const userId = instance.find("[name='userId']").value;
     FlowRouter.go(`/follow?hostname=${hostname}&userId=${userId}`)
   }
 });
@@ -285,7 +285,7 @@ Template.followButton.helpers({
   }
 })
 Template.followButton.events({
-  'click [data-action=follow]': function (event, template) {
+  'click [data-action=follow]': function (event, instance) {
     event.preventDefault();
     const hostname = FlowRouter.getQueryParam("hostname");
     const userId = FlowRouter.getQueryParam("userId");
@@ -299,7 +299,7 @@ Template.followButton.events({
       });
     }
   },
-  'click [data-action=unfollow]': function (event, template) {
+  'click [data-action=unfollow]': function (event, instance) {
     event.preventDefault();
     let hostname = FlowRouter.getQueryParam("hostname");
     let userId = FlowRouter.getQueryParam("userId");
@@ -317,11 +317,13 @@ Template.followButton.events({
       });
     }
   },
-  'mouseenter [data-action=following]': function (event, template) {
-    Template.instance().unfollow.set(true);
+  'mouseenter [data-action=following]': function (event, instance) {
+    event.preventDefault();
+    return instance.unfollow.set(true);
   },
-  'mouseleave [data-action=unfollow]': function (event, template) {
-    Template.instance().unfollow.set(false);
+  'mouseleave [data-action=unfollow]': function (event, instance) {
+    event.preventDefault();
+    return instance.unfollow.set(false);
   }
 })
 
@@ -345,7 +347,8 @@ Template.subsWrapper.onCreated(function () {
 })
 Template.subsWrapper.helpers({
   hasSub() {
-    return Subs.findOne()
+    // always return true when at 'follow' router
+    return Subs.findOne() || FlowRouter.getRouteName() === 'follow';
   }
 })
 

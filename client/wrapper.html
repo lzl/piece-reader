@@ -10,6 +10,8 @@
 
 <template name="subsWrapper">
   {{#if Template.subscriptionsReady}}
+    {{> Template.dynamic template=subForm}}
+
     {{#if hasSub}}
       {{> piecesWrapper}}
     {{else}}
@@ -25,6 +27,5 @@
 </template>
 
 <template name="piecesWrapper">
-  {{> Template.dynamic template=subForm}}
   {{> Template.dynamic template=privateContent data=data}}
 </template>
