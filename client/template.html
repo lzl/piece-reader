@@ -121,19 +121,21 @@
           <p class="card-text">
             Username: {{piece.owner}}
             <br>
-            User ID: {{piece.ownerId}}
+            User ID: <code>{{piece.ownerId}}</code>
             <br>
-            Published at {{piece.createdAt}}
+            Published at {{publishedAt piece.createdAt}}
           </p>
 
           {{#if piece.origin}}
-            <p class="card-text">
-              Username: {{piece.origin.owner}}
-              <br>
-              User ID: {{piece.origin.ownerId}}
-              <br>
-              Published at {{piece.origin.createdAt}}
-            </p>
+            <div class="card card-block">
+              <p class="card-text">
+                Username: {{piece.origin.owner}}
+                <br>
+                User ID: <code>{{piece.origin.ownerId}}</code>
+                <br>
+                Published at {{publishedAt piece.origin.createdAt}}
+              </p>
+            </div>
           {{/if}}
         </div>
         <div class="modal-footer">

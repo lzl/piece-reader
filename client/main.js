@@ -28,6 +28,9 @@ Template.registerHelper('updatedFromNow', (timestamp) => {
     return ~~(between / 86400) + 'd';
   }
 });
+Template.registerHelper('publishedAt', (timestamp) => {
+  return moment(timestamp).format('LLL');
+});
 
 Tracker.autorun(function () {
   console.log("server connection status:", Meteor.status().status, new Date());
