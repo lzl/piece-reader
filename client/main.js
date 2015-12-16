@@ -493,6 +493,11 @@ Template.readerPieceButtonType.helpers({
 })
 
 Template.readerPieceButton.events({
+  'click [data-action=detail]': (event, instance) => {
+    event.preventDefault();
+    const modalId = instance.data.piece._id;
+    instance.$(`#detail-${modalId}`).modal('show');
+  },
   'click [data-action=share]': (event, instance) => {
     event.preventDefault();
     const modalId = instance.data.piece._id;
@@ -560,5 +565,18 @@ Template.readerPieceShare.events({
         instance.$(`#share-${modalId}`).modal('hide');
       });
     }
+  }
+})
+
+Template.readerPieceDetail.helpers({
+  modalId() {
+    const instance = Template.instance();
+    let modalId = undefined;
+    if (instance.data.piece.origin) {
+      modalId = instance.data.piece.origin._id;
+    } else {
+      modalId = instance.data.piece._id;
+    }
+    return `detail-${modalId}`;
   }
 })

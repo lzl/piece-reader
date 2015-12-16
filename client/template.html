@@ -103,21 +103,59 @@
 </template>
 
 <template name="readerPieceButton">
-  <button type="button" class="btn btn-secondary" disabled>Detail</button>
+  <button type="button" class="btn btn-secondary" data-action="detail" data-toggle="modal">Detail</button>
   <button type="button" class="btn btn-secondary" data-action="share" data-toggle="modal">Share</button>
 
+  {{> readerPieceDetail piece=../piece}}
   {{> readerPieceShare piece=piece}}
 </template>
 
-<template name="readerPieceShare">
-  <div class="modal fade" id={{modalId}} tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<template name="readerPieceDetail">
+  <div class="modal fade" id={{modalId}} tabindex="-1" role="dialog" aria-labelledby="readerPieceDetail" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
-          <h4 class="modal-title" id="myModalLabel">Share this to your followers?</h4>
+          <h4 class="modal-title" id="readerPieceDetail">The detail of this piece.</h4>
+        </div>
+        <div class="modal-body">
+          <p class="card-text">
+            Username: {{piece.owner}}
+            <br>
+            User ID: {{piece.ownerId}}
+            <br>
+            Published at {{piece.createdAt}}
+          </p>
+
+          {{#if piece.origin}}
+            <p class="card-text">
+              Username: {{piece.origin.owner}}
+              <br>
+              User ID: {{piece.origin.ownerId}}
+              <br>
+              Published at {{piece.origin.createdAt}}
+            </p>
+          {{/if}}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template name="readerPieceShare">
+  <div class="modal fade" id={{modalId}} tabindex="-1" role="dialog" aria-labelledby="readerPieceShare" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title" id="readerPieceShare">Share this to your followers?</h4>
         </div>
         <div class="modal-body">
           <div class="input-group">
