@@ -1,0 +1,35 @@
+<template name="pieceTypeIsPlaintext">
+  <p class="card-text">
+    {{piece.owner}}
+    <small class="text-muted">· {{createdFromNow piece.createdAt}}</small>
+  </p>
+  <p class="card-text">
+    {{piece.content}}
+  </p>
+</template>
+
+<template name="pieceTypeIsHyperlink">
+</template>
+
+<template name="pieceTypeIsSharismPiece">
+  <p class="card-text">
+    {{piece.owner}}
+    <small class="text-muted">shared · {{createdFromNow piece.createdAt}}</small>
+  </p>
+
+  {{#if piece.comment}}
+  <p class="card-text">
+    {{piece.comment}}
+  </p>
+  {{/if}}
+
+  <div class="card card-block">
+    <p class="card-text">
+      {{piece.origin.owner}}
+      <small class="text-muted">· {{createdFromNow piece.origin.createdAt}}</small>
+    </p>
+    <p class="card-text">
+      {{piece.origin.content}}
+    </p>
+  </div>
+</template>

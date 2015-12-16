@@ -73,16 +73,86 @@
 
 <template name="readerPiece">
   <div class="card card-block">
-    <p class="card-text">
-      <strong>{{piece.owner}}</strong>
-      <small class="text-muted">({{piece.ownerId}})</small>
-    </p>
-    <p class="card-text">
-      {{piece.content}}
-    </p>
-    <p class="card-text">
-      <small class="text-muted">{{createdFromNow piece.createdAt}} · Piece ID: {{piece._id}}</small>
-    </p>
+    {{> readerPieceContent piece=piece}}
+    {{#if currentUser}}
+      {{> readerPieceButtonType piece=piece}}
+    {{/if}}
+  </div>
+</template>
+
+<template name="readerPieceContent">
+  {{#if typeIsPlaintext}}
+    {{> pieceTypeIsPlaintext piece=piece}}
+  {{/if}}
+
+  {{#if typeIsHyperlink}}
+    {{> pieceTypeIsHyperlink piece=piece}}
+  {{/if}}
+
+  {{#if typeIsSharismPiece}}
+    {{> pieceTypeIsSharismPiece piece=piece}}
+  {{/if}}
+</template>
+
+<template name="readerPieceButtonType">
+  {{#if typeIsSharism}}
+    {{> readerPieceButton piece=piece.origin}}
+  {{else}}
+    {{> readerPieceButton piece=piece}}
+  {{/if}}
+</template>
+
+<template name="readerPieceButton">
+  <button type="button" class="btn btn-secondary" disabled>Detail</button>
+  <button type="button" class="btn btn-secondary" data-action="share" data-toggle="modal">Share</button>
+
+  {{> readerPieceShare piece=piece}}
+</template>
+
+<template name="readerPieceShare">
+  <div class="modal fade" id={{modalId}} tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title" id="myModalLabel">Share this to your followers?</h4>
+        </div>
+        <div class="modal-body">
+          <div class="input-group">
+            <span class="input-group-addon" id="input-share-comment">Comment</span>
+            <input type="text" class="form-control" name="comment" placeholder="Optional" aria-describedby="input-share-comment" autofocus>
+          </div>
+          <br>
+
+          <p class="card-text">
+            {{selectClone.name}}
+            <small class="text-muted">shared</small>
+          </p>
+          <p class="card-text">
+            {{commentContent}}
+          </p>
+          <div class="card card-block">
+            {{> readerPieceContent piece=piece}}
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+
+          {{#if hasMoreThanOneClone}}
+            <select class="c-select" name="selectClone">
+              <option value={{currentClone._id}} selected>{{currentClone.name}}</option>
+              {{#each clone in otherClones}}
+                <option value={{clone._id}}>{{clone.name}}</option>
+              {{/each}}
+            </select>
+          {{/if}}
+
+          <button type="button" class="btn btn-primary" data-action="submit">Share</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 

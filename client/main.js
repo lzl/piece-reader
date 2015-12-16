@@ -3,8 +3,10 @@ Template.registerHelper('createdFromNow', (timestamp) => {
     return 'unknown';
   }
   const time = timestamp.getTime();
-  const between = (Date.now() - time) / 1000;
-  if (between < 3600) {
+  const between = (TimeSync.serverTime() - time) / 1000;
+  if (between < 60) {
+    return ~~(between) + 's';
+  } else if (between < 3600) {
     return ~~(between / 60) + 'm';
   } else if (between < 86400) {
     return ~~(between / 3600) + 'h';
@@ -17,7 +19,7 @@ Template.registerHelper('updatedFromNow', (timestamp) => {
     return 'unknown';
   }
   const time = timestamp.getTime();
-  const between = (Date.now() - time) / 1000;
+  const between = (TimeSync.serverTime(null, 60 * 60 * 1000) - time) / 1000;
   if (between < 3600) {
     return 'just updated';
   } else if (between < 86400) {
@@ -40,7 +42,7 @@ LocalClones = new Mongo.Collection(null); // Local collection
 
 const connect = function (hostname, userId) {
   console.log("connect:", hostname, userId);
-  Connections[hostname] = DDP.connect(`https://${hostname}`);
+  Connections[hostname] = DDP.connect(`http://${hostname}`);
   Collections[hostname] = new Mongo.Collection('pieces', {connection: Connections[hostname]});
   if (userId.constructor === Array) {
     Subscriptions[hostname] = Connections[hostname].subscribe("pieceMultiUserPosts", userId);
@@ -106,7 +108,7 @@ const subscribeViaForm = function (hostname, userId) {
 
 const previewViaForm = function (instance, hostname, userId) {
   console.log("previewViaForm:", hostname, userId);
-  instance.connection = DDP.connect(`https://${hostname}`);
+  instance.connection = DDP.connect(`http://${hostname}`);
   instance.collection = new Mongo.Collection('pieces', {connection: instance.connection});
   instance.subscription = instance.connection.subscribe("pieceSingleClonePosts", userId);
 }
@@ -190,7 +192,7 @@ Template.followingSub.onCreated(function () {
   }
   const hostname = instance.data.sub.hostname;
   const userIds = instance.data.sub.userId;
-  instance.connection = DDP.connect(`https://${hostname}`);
+  instance.connection = DDP.connect(`http://${hostname}`);
   instance.collection = new Mongo.Collection('clones', {connection: instance.connection});
   instance.subscription = instance.connection.subscribe("pieceMultiCloneProfiles", userIds);
 
@@ -264,7 +266,7 @@ Template.previewPieces.helpers({
 
 Template.followForm.helpers({
   URL() {
-    return "https://" + FlowRouter.getQueryParam("hostname");
+    return "http://" + FlowRouter.getQueryParam("hostname");
   },
   userId() {
     return FlowRouter.getQueryParam("userId");
@@ -370,7 +372,7 @@ Template.piecesWrapper.onCreated(function () {
     _.each(subs, (sub) => {
       const hostname = sub.hostname;
       const userId = sub.userId;
-      instance.connections[hostname] = DDP.connect(`https://${hostname}`);
+      instance.connections[hostname] = DDP.connect(`http://${hostname}`);
       instance.collections[hostname] = new Mongo.Collection('pieces', {connection: instance.connections[hostname]});
       if (userId.constructor === Array) {
         instance.subscriptions[hostname] = instance.connections[hostname].subscribe("pieceMultiUserPosts", userId);
@@ -448,6 +450,100 @@ Template.piecesWrapper.helpers({
       pieces: instance.pieces,
       percentage: instance.percentage,
       observationIsDone: instance.observationIsDone
+    }
+  }
+})
+
+Template.readerPieceContent.helpers({
+  typeIsPlaintext() {
+    const piece = Template.instance().data.piece;
+    return piece.type === 'plaintext';
+  },
+  typeIsHyperlink() {
+    const piece = Template.instance().data.piece;
+    return piece.type === 'hyperlink';
+  },
+  typeIsSharismPiece() {
+    const piece = Template.instance().data.piece;
+    return piece.type === 'sharism-piece';
+  },
+})
+
+
+Template.readerPieceButtonType.helpers({
+  typeIsSharism() {
+    const piece = Template.instance().data.piece;
+    return piece.type.indexOf('sharism') > -1;
+  },
+})
+
+Template.readerPieceButton.events({
+  'click [data-action=share]': (event, instance) => {
+    event.preventDefault();
+    const modalId = instance.data.piece._id;
+    instance.$(`#share-${modalId}`).modal('show');
+    instance.$(`#share-${modalId}`).on('shown.bs.modal', () => {
+      instance.find('[autofocus]').focus();
+    });
+  }
+})
+
+Template.readerPieceShare.onCreated(function () {
+  const instance = this;
+  instance.state = new ReactiveDict();
+  instance.state.setDefault({
+    'commentContent': '',
+    'selectCloneId': Session.get('currentCloneId')
+  })
+})
+Template.readerPieceShare.helpers({
+  modalId() {
+    const instance = Template.instance();
+    const modalId = instance.data.piece._id;
+    return `share-${modalId}`;
+  },
+  commentContent() {
+    const instance = Template.instance();
+    return instance.state.get('commentContent');
+  },
+  hasMoreThanOneClone() {
+    return Clones.find().count() > 1;
+  },
+  currentClone() {
+    const currentCloneId = Session.get('currentCloneId');
+    return Clones.findOne({_id: currentCloneId});
+  },
+  otherClones() {
+    const currentCloneId = Session.get('currentCloneId');
+    return Clones.find({_id: {$ne: currentCloneId}}).fetch();
+  },
+  selectClone() {
+    const instance = Template.instance();
+    const selectCloneId = instance.state.get('selectCloneId');
+    return Clones.findOne({_id: selectCloneId});
+  }
+})
+Template.readerPieceShare.events({
+  'keyup [name=comment]': (event, instance) => {
+    event.preventDefault();
+    const comment = instance.find("[name='comment']").value;
+    instance.state.set('commentContent', comment);
+  },
+  'change [name=selectClone]': (event, instance) => {
+    event.preventDefault();
+    const selectCloneId = instance.find("[name='selectClone']").value;
+    instance.state.set('selectCloneId', selectCloneId);
+  },
+  'click [data-action=submit]': (event, instance) => {
+    event.preventDefault();
+    const comment = instance.find("[name='comment']").value;
+    const piece = instance.data.piece;
+    const cloneId = instance.state.get('selectCloneId');
+    const modalId = instance.data.piece._id;
+    if (Meteor.userId()) {
+      Meteor.call('pieceShareByClone', piece, comment, cloneId, () => {
+        instance.$(`#share-${modalId}`).modal('hide');
+      });
     }
   }
 })

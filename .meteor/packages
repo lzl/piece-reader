@@ -27,9 +27,10 @@ themeteorchef:jquery-validation
 reactive-var
 reactive-dict
 force-ssl
-browser-policy
+# browser-policy # disabled because of bootstrap.js
 kadira:flow-router
 kadira:blaze-layout
 zimme:active-route
+mizzao:timesync
 
 # meteortoys:allthings

@@ -97,4 +97,33 @@ Meteor.methods({
       throw new Meteor.Error("not-authorized", "You don't own that clone.");
     }
   },
+  pieceShareByClone(piece, comment, cloneId) {
+    check(piece, Object);
+    check(comment, String);
+    check(cloneId, String);
+    // if comment is empty, then set to null
+    comment = comment || null;
+
+    const userId = Meteor.userId();
+    if (! userId) {
+      throw new Meteor.Error("not-authorized", "Log in before share piece.");
+    }
+
+    const ownedClone = Clones.findOne({_id: cloneId, ownerId: userId});
+    if (ownedClone) {
+      const timestamp = new Date();
+      Clones.update({_id: cloneId, ownerId: userId}, {$set: {updatedAt: timestamp}});
+      return Pieces.insert({
+        type: "sharism-piece",
+        comment: comment,
+        origin: piece,
+        owner: ownedClone.name,
+        ownerId: ownedClone._id,
+        published: true,
+        createdAt: timestamp
+      })
+    } else {
+      throw new Meteor.Error("not-authorized", "You don't own that clone.");
+    }
+  }
 });
