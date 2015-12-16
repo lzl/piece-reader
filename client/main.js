@@ -264,6 +264,21 @@ Template.previewPieces.helpers({
   }
 })
 
+Template.previewPieceContent.helpers({
+  typeIsPlaintext() {
+    const piece = Template.instance().data.piece;
+    return piece.type === 'plaintext';
+  },
+  typeIsHyperlink() {
+    const piece = Template.instance().data.piece;
+    return piece.type === 'hyperlink';
+  },
+  typeIsSharismPiece() {
+    const piece = Template.instance().data.piece;
+    return piece.type === 'sharism-piece';
+  }
+})
+
 Template.followForm.helpers({
   URL() {
     return "http://" + FlowRouter.getQueryParam("hostname");
@@ -466,7 +481,7 @@ Template.readerPieceContent.helpers({
   typeIsSharismPiece() {
     const piece = Template.instance().data.piece;
     return piece.type === 'sharism-piece';
-  },
+  }
 })
 
 

@@ -191,16 +191,27 @@
     <ul class="list-group">
       {{#if hasPiece}}
         {{#each piece in pieces}}
-          <li class="list-group-item">
-            {{piece.owner}}: {{piece.content}}
-            <small class="text-muted pull-right">{{createdFromNow piece.createdAt}}</small>
-          </li>
+          {{> previewPieceContent piece=piece}}
         {{/each}}
       {{else}}
         <li class="list-group-item">Fetching pieces...</li>
       {{/if}}
     </ul>
   </div>
+</template>
+
+<template name="previewPieceContent">
+  {{#if typeIsPlaintext}}
+    {{> previewPieceTypeIsPlaintext piece=piece}}
+  {{/if}}
+
+  {{#if typeIsHyperlink}}
+    {{> previewPieceTypeIsHyperlink piece=piece}}
+  {{/if}}
+
+  {{#if typeIsSharismPiece}}
+    {{> previewPieceTypeIsSharismPiece piece=piece}}
+  {{/if}}
 </template>
 
 <template name="demoPieces">

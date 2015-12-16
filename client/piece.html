@@ -33,3 +33,21 @@
     </p>
   </div>
 </template>
+
+<template name="previewPieceTypeIsPlaintext">
+  <li class="list-group-item">
+    {{piece.owner}}: {{piece.content}}
+    <small class="text-muted pull-right">{{createdFromNow piece.createdAt}}</small>
+  </li>
+</template>
+
+<template name="previewPieceTypeIsHyperlink">
+</template>
+
+<template name="previewPieceTypeIsSharismPiece">
+  <li class="list-group-item">
+    {{piece.owner}}: {{piece.comment}} »
+    <span class="text-muted">{{piece.origin.owner}}: {{piece.origin.content}}</span>
+    <small class="text-muted pull-right">{{createdFromNow piece.createdAt}}</small>
+  </li>
+</template>
