@@ -485,7 +485,7 @@ Template.readerPieceContent.helpers({
 })
 
 
-Template.readerPieceButtonType.helpers({
+Template.readerPieceButton.helpers({
   typeIsSharism() {
     const piece = Template.instance().data.piece;
     return piece.type.indexOf('sharism') > -1;
@@ -500,7 +500,12 @@ Template.readerPieceButton.events({
   },
   'click [data-action=share]': (event, instance) => {
     event.preventDefault();
-    const modalId = instance.data.piece._id;
+    let modalId = undefined;
+    if (instance.data.piece.origin) {
+      modalId = instance.data.piece.origin._id;
+    } else {
+      modalId = instance.data.piece._id;
+    }
     instance.$(`#share-${modalId}`).modal('show');
     instance.$(`#share-${modalId}`).on('shown.bs.modal', () => {
       instance.find('[autofocus]').focus();
@@ -571,12 +576,7 @@ Template.readerPieceShare.events({
 Template.readerPieceDetail.helpers({
   modalId() {
     const instance = Template.instance();
-    let modalId = undefined;
-    if (instance.data.piece.origin) {
-      modalId = instance.data.piece.origin._id;
-    } else {
-      modalId = instance.data.piece._id;
-    }
+    const modalId = instance.data.piece._id;
     return `detail-${modalId}`;
   }
 })

@@ -75,7 +75,7 @@
   <div class="card card-block">
     {{> readerPieceContent piece=piece}}
     {{#if currentUser}}
-      {{> readerPieceButtonType piece=piece}}
+      {{> readerPieceButton piece=piece}}
     {{/if}}
   </div>
 </template>
@@ -94,20 +94,17 @@
   {{/if}}
 </template>
 
-<template name="readerPieceButtonType">
-  {{#if typeIsSharism}}
-    {{> readerPieceButton piece=piece.origin}}
-  {{else}}
-    {{> readerPieceButton piece=piece}}
-  {{/if}}
-</template>
-
 <template name="readerPieceButton">
   <button type="button" class="btn btn-secondary" data-action="detail" data-toggle="modal">Detail</button>
   <button type="button" class="btn btn-secondary" data-action="share" data-toggle="modal">Share</button>
 
-  {{> readerPieceDetail piece=../piece}}
-  {{> readerPieceShare piece=piece}}
+  {{#if typeIsSharism}}
+    {{> readerPieceDetail piece=piece}}
+    {{> readerPieceShare piece=piece.origin}}
+  {{else}}
+    {{> readerPieceDetail piece=piece}}
+    {{> readerPieceShare piece=piece}}
+  {{/if}}
 </template>
 
 <template name="readerPieceDetail">
