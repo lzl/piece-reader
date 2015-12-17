@@ -1,0 +1,9 @@
+{
+  "name": "piece-reader",
+  "version": "0.1.0",
+  "description": "A message subscription tool powered by Meteor.",
+  "scripts": {
+    "start": "MONGO_URL=mongodb://127.0.0.1:3001/meteor meteor --port 4000 --settings settings-development.json",
+    "deploy": "meteor deploy piece-reader.meteor.com --settings settings-production.json"
+  }
+}

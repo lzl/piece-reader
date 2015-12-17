@@ -1,3 +1,13 @@
+let hostname = Meteor.settings.public.piece.url;
+if (Meteor.isServer) {
+  const url = Npm.require("url");
+  hostname = url.parse(hostname).host;
+} else {
+  const parser = document.createElement('a');
+  parser.href = hostname;
+  hostname = parser.host;
+}
+
 Meteor.methods({
   subInsert: function (hostname, userId) {
     check(hostname, String);
@@ -119,6 +129,7 @@ Meteor.methods({
         origin: piece,
         owner: ownedClone.name,
         ownerId: ownedClone._id,
+        hostname: hostname,
         published: true,
         createdAt: timestamp
       })
