@@ -96,7 +96,7 @@
 
 <template name="readerPieceButton">
   <button type="button" class="btn btn-secondary" data-action="detail" data-toggle="modal">Detail</button>
-  <button type="button" class="btn btn-secondary" data-action="share" data-toggle="modal">Share</button>
+  <button type="button" class="btn btn-secondary" data-action="share" data-toggle="modal" disabled>Share</button>
 
   {{#if typeIsSharism}}
     {{> readerPieceDetail piece=piece}}
