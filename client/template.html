@@ -131,6 +131,7 @@
           </p>
           <p class="card-text">
             <button type="button" class="btn btn-secondary" data-action="preview">Preview</button>
+            {{> readerPieceDetailFollowButton piece=piece}}
           </p>
 
           {{#if piece.origin}}
@@ -148,6 +149,7 @@
               </p>
               <p class="card-text">
                 <button type="button" class="btn btn-secondary" data-action="previewOrigin">Preview</button>
+                {{> readerPieceDetailFollowButton piece=piece.origin}}
               </p>
             </div>
           {{/if}}
@@ -158,6 +160,18 @@
       </div>
     </div>
   </div>
+</template>
+
+<template name="readerPieceDetailFollowButton">
+  {{#if following}}
+    {{#if unfollow}}
+      <button type="button" class="btn btn-danger" data-action="unfollow">Unfollow</button>
+    {{else}}
+      <button type="button" class="btn btn-primary" data-action="following">Following</button>
+    {{/if}}
+  {{else}}
+    <button type="button" class="btn btn-primary" data-action="follow">Follow</button>
+  {{/if}}
 </template>
 
 <template name="readerPieceShare">

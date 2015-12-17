@@ -605,3 +605,56 @@ Template.readerPieceDetail.events({
     });
   },
 })
+
+Template.readerPieceDetailFollowButton.onCreated(function () {
+  this.unfollow = new ReactiveVar(false);
+})
+Template.readerPieceDetailFollowButton.helpers({
+  following() {
+    const instance = Template.instance();
+    const hostname = instance.data.piece.hostname;
+    const userId = instance.data.piece.ownerId;
+    return followed = Subs.findOne({hostname: hostname, userId: {$in: [userId]}});
+  },
+  unfollow() {
+    return Template.instance().unfollow.get();
+  }
+})
+Template.readerPieceDetailFollowButton.events({
+  'click [data-action=follow]': function (event, instance) {
+    event.preventDefault();
+    const hostname = instance.data.piece.hostname;
+    const userId = instance.data.piece.ownerId;
+
+    if (Meteor.userId()) {
+      const cloneId = Session.get("currentCloneId");
+      Meteor.call('subInsertByClone', cloneId, hostname, userId, function (err, result) {
+        if (!err) {
+          console.log("follow:", hostname, userId, "by", cloneId);
+        }
+      });
+    }
+  },
+  'click [data-action=unfollow]': function (event, instance) {
+    event.preventDefault();
+    let hostname = instance.data.piece.hostname;
+    let userId = instance.data.piece.ownerId;
+
+    if (Meteor.userId()) {
+      const cloneId = Session.get("currentCloneId");
+      Meteor.call('subRemoveByClone', cloneId, hostname, userId, function (err, result) {
+        if (!err) {
+          console.log("unfollow:", hostname, userId, "by", cloneId);
+        }
+      });
+    }
+  },
+  'mouseenter [data-action=following]': function (event, instance) {
+    event.preventDefault();
+    return instance.unfollow.set(true);
+  },
+  'mouseleave [data-action=unfollow]': function (event, instance) {
+    event.preventDefault();
+    return instance.unfollow.set(false);
+  }
+})
