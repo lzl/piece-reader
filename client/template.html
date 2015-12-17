@@ -118,22 +118,30 @@
           <h4 class="modal-title" id="readerPieceDetail">The detail of this piece.</h4>
         </div>
         <div class="modal-body">
+          <p class="card-text">Username: {{piece.owner}}</p>
           <p class="card-text">
-            Username: {{piece.owner}}
+            <span>URL: <code>https://{{piece.hostname}}</code></span>
             <br>
-            User ID: <code>{{piece.ownerId}}</code>
+            <span>User ID: <code>{{piece.ownerId}}</code></span>
+          </p>
+          <p class="card-text">
+            <span>Piece ID: <code>{{piece._id}}</code></span>
             <br>
-            Published at {{publishedAt piece.createdAt}}
+            <span>Published at {{publishedAt piece.createdAt}}</span>
           </p>
 
           {{#if piece.origin}}
             <div class="card card-block">
+              <p class="card-text">Username: {{piece.origin.owner}}</p>
               <p class="card-text">
-                Username: {{piece.origin.owner}}
+                <span>URL: <code>https://{{piece.origin.hostname}}</code></span>
                 <br>
-                User ID: <code>{{piece.origin.ownerId}}</code>
+                <span>User ID: <code>{{piece.origin.ownerId}}</code></span>
+              </p>
+              <p class="card-text">
+                <span>Piece ID: <code>{{piece.origin._id}}</code></span>
                 <br>
-                Published at {{publishedAt piece.origin.createdAt}}
+                <span>Published at {{publishedAt piece.origin.createdAt}}</span>
               </p>
             </div>
           {{/if}}
