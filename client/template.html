@@ -129,6 +129,9 @@
             <br>
             <span>Published at {{publishedAt piece.createdAt}}</span>
           </p>
+          <p class="card-text">
+            <button type="button" class="btn btn-secondary" data-action="preview">Preview</button>
+          </p>
 
           {{#if piece.origin}}
             <div class="card card-block">
@@ -142,6 +145,9 @@
                 <span>Piece ID: <code>{{piece.origin._id}}</code></span>
                 <br>
                 <span>Published at {{publishedAt piece.origin.createdAt}}</span>
+              </p>
+              <p class="card-text">
+                <button type="button" class="btn btn-secondary" data-action="previewOrigin">Preview</button>
               </p>
             </div>
           {{/if}}

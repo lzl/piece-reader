@@ -159,7 +159,7 @@ Template.previewForm.events({
     const url = instance.find("[name='url']").value;
     const hostname = hostnameParse(url).toLowerCase();
     const userId = instance.find("[name='userId']").value;
-    FlowRouter.go(`/follow?hostname=${hostname}&userId=${userId}`)
+    FlowRouter.go(`/follow?hostname=${hostname}&userId=${userId}`);
   }
 });
 
@@ -582,4 +582,26 @@ Template.readerPieceDetail.helpers({
     const modalId = instance.data.piece._id;
     return `detail-${modalId}`;
   }
+})
+Template.readerPieceDetail.events({
+  'click [data-action=preview]': (event, instance) => {
+    event.preventDefault();
+    const hostname = instance.data.piece.hostname;
+    const userId = instance.data.piece.ownerId;
+    const modalId = instance.data.piece._id;
+    $(`#detail-${modalId}`).modal('hide');
+    $(`#detail-${modalId}`).on('hidden.bs.modal', () => {
+      FlowRouter.go(`/follow?hostname=${hostname}&userId=${userId}`);
+    });
+  },
+  'click [data-action=previewOrigin]': (event, instance) => {
+    event.preventDefault();
+    const hostname = instance.data.piece.origin.hostname;
+    const userId = instance.data.piece.origin.ownerId;
+    const modalId = instance.data.piece._id;
+    $(`#detail-${modalId}`).modal('hide');
+    $(`#detail-${modalId}`).on('hidden.bs.modal', () => {
+      FlowRouter.go(`/follow?hostname=${hostname}&userId=${userId}`);
+    });
+  },
 })
