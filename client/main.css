@@ -8,6 +8,9 @@
 .jumbotron {
   margin-bottom: 1rem;
 }
+.progress {
+  margin-bottom: 0;
+}
 .top-fixed {
   position: fixed;
   top: 0;
