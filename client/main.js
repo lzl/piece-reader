@@ -377,6 +377,8 @@ Template.subsWrapper.helpers({
 })
 
 Template.piecesWrapper.onCreated(function () {
+  // set piecesLimitByDate to yesterday
+  Session.setDefault("piecesLimitByDate", (function(d){d.setDate(d.getDate()-1); return d;})(new Date));
   const instance = this;
   instance.state = new ReactiveDict();
 
@@ -398,7 +400,7 @@ Template.piecesWrapper.onCreated(function () {
       instance.connections[hostname] = DDP.connect(`${protocol}://${hostname}`);
       instance.collections[hostname] = new Mongo.Collection('pieces', {connection: instance.connections[hostname]});
       if (userId.constructor === Array) {
-        instance.subscriptions[hostname] = instance.connections[hostname].subscribe("pieceMultiUserPosts", userId);
+        instance.subscriptions[hostname] = instance.connections[hostname].subscribe("pieceMultiUserPostsByDate", userId, Session.get("piecesLimitByDate"));
       } else {
         instance.subscriptions[hostname] = instance.connections[hostname].subscribe("pieceSingleClonePosts", userId);
       }
@@ -661,5 +663,17 @@ Template.readerPieceDetailFollowButton.events({
   'mouseleave [data-action=unfollow]': function (event, instance) {
     event.preventDefault();
     return instance.unfollow.set(false);
+  }
+})
+
+Template.readerPiecesReadMoreButton.helpers({
+  disabled() {
+    const MIN_DATE = (function(d){d.setDate(d.getDate()-7); return d;})(new Date);
+    return Session.get("piecesLimitByDate") <= MIN_DATE ? "disabled" : '';
+  }
+})
+Template.readerPiecesReadMoreButton.events({
+  'click [data-action=more]': (event, instance) => {
+    Session.set("piecesLimitByDate", (function(d){d.setDate(d.getDate()-1); return d;})(Session.get("piecesLimitByDate")));
   }
 })

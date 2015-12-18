@@ -59,6 +59,8 @@
       {{#each piece in pieces}}
         {{> readerPiece piece=piece}}
       {{/each}}
+
+      {{> readerPiecesReadMoreButton}}
     {{else}}
       <ul class="list-group">
         <li class="list-group-item">Fetching pieces...</li>
@@ -68,8 +70,15 @@
 </template>
 
 <template name="readerPiecesProgress">
-  <progress class="progress" value="{{percentage}}" max="100">{{percentage}}%</progress>
+  <div class="top-fixed">
+    <progress class="progress progress-striped progress-success" value="{{percentage}}" max="100">{{percentage}}%</progress>
+  </div>
 </template>
+
+<template name="readerPiecesReadMoreButton">
+  <button type="button" class="btn btn-primary-outline btn-block" data-action="more" {{disabled}}>Read More</button>
+  <div class="hr"></div>
+</Template>
 
 <template name="readerPiece">
   <div class="card card-block">
