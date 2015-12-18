@@ -684,18 +684,13 @@ Template.readerPiecesReadMoreButton.helpers({
 })
 Template.readerPiecesReadMoreButton.events({
   'click [data-action=more]': (event, instance) => {
-    if (Session.get("piecesLimitBy") === "date") {
+    Session.set("piecesLocalCount", LocalPieces.find().count());
+    if (Session.get("piecesLocalCount") < 20) {
+      Session.set("piecesLimitBy", "number");
+    } else if (Session.get("piecesLimitBy") === "date") {
       Session.set("piecesLimitByDate", (function(d){d.setDate(d.getDate()-1); return d;})(Session.get("piecesLimitByDate")));
     } else {
-      Session.set("piecesLocalCount", LocalPieces.find().count());
       Session.set("piecesLimitByNumber", Session.get("piecesLimitByNumber") + 20);
-    }
-  },
-  'click [data-action=toggle]': (event, instance) => {
-    if (Session.get("piecesLimitBy") === "date") {
-      Session.set("piecesLimitBy", "number");
-    } else {
-      Session.set("piecesLimitBy", "date");
     }
   }
 })
