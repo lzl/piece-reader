@@ -45,7 +45,8 @@ LocalClones = new Mongo.Collection(null); // Local collection
 
 const connect = function (hostname, userId) {
   console.log("connect:", hostname, userId);
-  Connections[hostname] = DDP.connect(`https://${hostname}`);
+  const protocol = Meteor.settings.public.protocol;
+  Connections[hostname] = DDP.connect(`${protocol}://${hostname}`);
   Collections[hostname] = new Mongo.Collection('pieces', {connection: Connections[hostname]});
   if (userId.constructor === Array) {
     Subscriptions[hostname] = Connections[hostname].subscribe("pieceMultiUserPosts", userId);
@@ -111,7 +112,8 @@ const subscribeViaForm = function (hostname, userId) {
 
 const previewViaForm = function (instance, hostname, userId) {
   console.log("previewViaForm:", hostname, userId);
-  instance.connection = DDP.connect(`https://${hostname}`);
+  const protocol = Meteor.settings.public.protocol;
+  instance.connection = DDP.connect(`${protocol}://${hostname}`);
   instance.collection = new Mongo.Collection('pieces', {connection: instance.connection});
   instance.subscription = instance.connection.subscribe("pieceSingleClonePosts", userId);
 }
@@ -195,7 +197,8 @@ Template.followingSub.onCreated(function () {
   }
   const hostname = instance.data.sub.hostname;
   const userIds = instance.data.sub.userId;
-  instance.connection = DDP.connect(`https://${hostname}`);
+  const protocol = Meteor.settings.public.protocol;
+  instance.connection = DDP.connect(`${protocol}://${hostname}`);
   instance.collection = new Mongo.Collection('clones', {connection: instance.connection});
   instance.subscription = instance.connection.subscribe("pieceMultiCloneProfiles", userIds);
 
@@ -284,7 +287,8 @@ Template.previewPieceContent.helpers({
 
 Template.followForm.helpers({
   URL() {
-    return "https://" + FlowRouter.getQueryParam("hostname");
+    const protocol = Meteor.settings.public.protocol;
+    return protocol + "://" + FlowRouter.getQueryParam("hostname");
   },
   userId() {
     return FlowRouter.getQueryParam("userId");
@@ -390,7 +394,8 @@ Template.piecesWrapper.onCreated(function () {
     _.each(subs, (sub) => {
       const hostname = sub.hostname;
       const userId = sub.userId;
-      instance.connections[hostname] = DDP.connect(`https://${hostname}`);
+      const protocol = Meteor.settings.public.protocol;
+      instance.connections[hostname] = DDP.connect(`${protocol}://${hostname}`);
       instance.collections[hostname] = new Mongo.Collection('pieces', {connection: instance.connections[hostname]});
       if (userId.constructor === Array) {
         instance.subscriptions[hostname] = instance.connections[hostname].subscribe("pieceMultiUserPosts", userId);

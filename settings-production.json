@@ -2,6 +2,7 @@
   "public": {
     "piece": {
       "url": "https://piece.meteor.com"
-    }
+    },
+    "protocol": "https"
   }
 }
