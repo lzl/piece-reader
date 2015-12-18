@@ -721,10 +721,13 @@ Template.readerPiecesReadMoreButton.events({
   'click [data-action=more]': (event, instance) => {
     Session.set("piecesLocalCount", LocalPieces.find().count());
     if (Session.get("piecesLocalCount") < 20) {
+      console.log("changed: to limit by number");
       Session.set("piecesLimitBy", "number");
     } else if (Session.get("piecesLimitBy") === "date") {
+      console.log("more: limit by date");
       Session.set("piecesLimitByDate", (function(d){d.setDate(d.getDate()-1); return d;})(Session.get("piecesLimitByDate")));
     } else {
+      console.log("more: limit by number");
       Session.set("piecesLimitByNumber", Session.get("piecesLimitByNumber") + 20);
     }
   }
