@@ -378,7 +378,9 @@ Template.subsWrapper.helpers({
 
 Template.piecesWrapper.onCreated(function () {
   // set piecesLimitByDate to yesterday
+  Session.setDefault("piecesLimitBy", "date");
   Session.setDefault("piecesLimitByDate", (function(d){d.setDate(d.getDate()-1); return d;})(new Date));
+  Session.setDefault("piecesLimitByNumber", 20);
   const instance = this;
   instance.state = new ReactiveDict();
 
@@ -400,7 +402,11 @@ Template.piecesWrapper.onCreated(function () {
       instance.connections[hostname] = DDP.connect(`${protocol}://${hostname}`);
       instance.collections[hostname] = new Mongo.Collection('pieces', {connection: instance.connections[hostname]});
       if (userId.constructor === Array) {
-        instance.subscriptions[hostname] = instance.connections[hostname].subscribe("pieceMultiUserPostsByDate", userId, Session.get("piecesLimitByDate"));
+        if (Session.get("piecesLimitBy") === "date") {
+          instance.subscriptions[hostname] = instance.connections[hostname].subscribe("pieceMultiUserPostsByDate", userId, Session.get("piecesLimitByDate"));
+        } else {
+          instance.subscriptions[hostname] = instance.connections[hostname].subscribe("pieceMultiUserPosts", userId, Session.get("piecesLimitByNumber"));
+        }
       } else {
         instance.subscriptions[hostname] = instance.connections[hostname].subscribe("pieceSingleClonePosts", userId);
       }
@@ -668,12 +674,28 @@ Template.readerPieceDetailFollowButton.events({
 
 Template.readerPiecesReadMoreButton.helpers({
   disabled() {
-    const MIN_DATE = (function(d){d.setDate(d.getDate()-7); return d;})(new Date);
-    return Session.get("piecesLimitByDate") <= MIN_DATE ? "disabled" : '';
+    if (Session.get("piecesLimitBy") === "date") {
+      const MIN_DATE = (function(d){d.setDate(d.getDate()-7); return d;})(new Date);
+      return Session.get("piecesLimitByDate") <= MIN_DATE ? "disabled" : '';
+    } else {
+      return Session.get("piecesLocalCount") === LocalPieces.find().count() ? "disabled": '';
+    }
   }
 })
 Template.readerPiecesReadMoreButton.events({
   'click [data-action=more]': (event, instance) => {
-    Session.set("piecesLimitByDate", (function(d){d.setDate(d.getDate()-1); return d;})(Session.get("piecesLimitByDate")));
+    if (Session.get("piecesLimitBy") === "date") {
+      Session.set("piecesLimitByDate", (function(d){d.setDate(d.getDate()-1); return d;})(Session.get("piecesLimitByDate")));
+    } else {
+      Session.set("piecesLocalCount", LocalPieces.find().count());
+      Session.set("piecesLimitByNumber", Session.get("piecesLimitByNumber") + 20);
+    }
+  },
+  'click [data-action=toggle]': (event, instance) => {
+    if (Session.get("piecesLimitBy") === "date") {
+      Session.set("piecesLimitBy", "number");
+    } else {
+      Session.set("piecesLimitBy", "date");
+    }
   }
 })
