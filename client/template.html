@@ -271,7 +271,14 @@
         <li class="list-group-item">Fetching pieces...</li>
       {{/if}}
     </ul>
+    <div class="hr"></div>
   </div>
+  {{#if showButton}}
+    <div class="row">
+      <button type="button" class="btn btn-primary-outline btn-block" data-action="more" {{disabled}}>Read More</button>
+      <div class="hr"></div>
+    </div>
+  {{/if}}
 </template>
 
 <template name="previewPieceContent">

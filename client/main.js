@@ -254,9 +254,21 @@ Template.followingSubDetail.helpers({
 
 Template.previewPieces.onCreated(function () {
   const instance = this;
+  instance.state = new ReactiveDict();
+  instance.state.setDefault({
+    wantPiecesCount: 20
+  });
+
   const hostname = FlowRouter.getQueryParam("hostname");
   const userId = FlowRouter.getQueryParam("userId");
-  previewViaForm(instance, hostname, userId);
+  // previewViaForm(instance, hostname, userId, instance.state.get('wantPiecesCount'));
+  const protocol = Meteor.settings.public.protocol;
+  instance.connection = DDP.connect(`${protocol}://${hostname}`);
+  instance.collection = new Mongo.Collection('pieces', {connection: instance.connection});
+  instance.autorun(() => {
+    const limit = instance.state.get('wantPiecesCount');
+    instance.subscription = instance.connection.subscribe("pieceSingleClonePosts", userId, limit);
+  });
 })
 Template.previewPieces.helpers({
   hasPiece() {
@@ -267,6 +279,29 @@ Template.previewPieces.helpers({
     const instance = Template.instance();
     const userId = FlowRouter.getQueryParam("userId");
     return instance.collection.find({ownerId: userId}, {sort: {createdAt: -1}});
+  },
+  showButton() {
+    const instance = Template.instance();
+    const userId = FlowRouter.getQueryParam("userId");
+    const hasPiecesCount = instance.collection.find({ownerId: userId}).count();
+    return hasPiecesCount >= 20;
+  },
+  disabled() {
+    const instance = Template.instance();
+    const userId = FlowRouter.getQueryParam("userId");
+    const hasPiecesCount = instance.collection.find({ownerId: userId}).count();
+    const wantPiecesCount = instance.state.get('wantPiecesCount');
+    if (hasPiecesCount < wantPiecesCount) {
+      return 'disabled';
+    } else {
+      return '';
+    }
+  }
+})
+Template.previewPieces.events({
+  'click [data-action=more]': (event, instance) => {
+    event.preventDefault();
+    instance.state.set('wantPiecesCount', instance.state.get('wantPiecesCount') + 20);
   }
 })
 
