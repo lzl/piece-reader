@@ -418,24 +418,57 @@ Template.piecesWrapper.onCreated(function () {
   Session.setDefault("piecesLimitByNumber", 20);
   const instance = this;
   instance.state = new ReactiveDict();
+  instance.connections = Object.create(null);
+  instance.collections = Object.create(null);
+  instance.subscriptions = Object.create(null);
+  // console.log(instance);
+
+  const protocol = Meteor.settings.public.protocol;
+  const subsCursor = Subs.find();
+  const subsCursorHandle = subsCursor.observeChanges({
+    added(id, sub) {
+      const hostname = sub.hostname;
+      const userId = sub.userId;
+      instance.connections[hostname] = DDP.connect(`${protocol}://${hostname}`);
+      instance.collections[hostname] = new Mongo.Collection('pieces', {connection: instance.connections[hostname]});
+    }
+  })
 
   instance.autorun(() => {
-    instance.connections = Object.create(null);
-    instance.collections = Object.create(null);
-    instance.subscriptions = Object.create(null);
+    // instance.connections = Object.create(null);
+    // instance.collections = Object.create(null);
+    // instance.subscriptions = Object.create(null);
 
     const subsCursor = Subs.find();
     const subs = subsCursor.fetch();
     instance.state.set('observedHostNum', 0);
     instance.state.set('totalHostNum', subsCursor.count());
 
+    // console.log("subs:", subs);
+    // _.each(subs, (sub) => {
+    //   const hostname = sub.hostname;
+    //   const userId = sub.userId;
+    //   const protocol = Meteor.settings.public.protocol;
+    //   instance.connections[hostname] = DDP.connect(`${protocol}://${hostname}`);
+    //   instance.collections[hostname] = new Mongo.Collection('pieces', {connection: instance.connections[hostname]});
+    //   if (userId.constructor === Array) {
+    //     if (Session.get("piecesLimitBy") === "date") {
+    //       instance.subscriptions[hostname] = instance.connections[hostname].subscribe("pieceMultiUserPostsByDate", userId, Session.get("piecesLimitByDate"));
+    //     } else {
+    //       instance.subscriptions[hostname] = instance.connections[hostname].subscribe("pieceMultiUserPosts", userId, Session.get("piecesLimitByNumber"));
+    //     }
+    //   } else {
+    //     instance.subscriptions[hostname] = instance.connections[hostname].subscribe("pieceSingleClonePosts", userId);
+    //   }
+    // })
+
     console.log("subs:", subs);
     _.each(subs, (sub) => {
       const hostname = sub.hostname;
       const userId = sub.userId;
-      const protocol = Meteor.settings.public.protocol;
-      instance.connections[hostname] = DDP.connect(`${protocol}://${hostname}`);
-      instance.collections[hostname] = new Mongo.Collection('pieces', {connection: instance.connections[hostname]});
+      // const protocol = Meteor.settings.public.protocol;
+      // instance.connections[hostname] = DDP.connect(`${protocol}://${hostname}`);
+      // instance.collections[hostname] = new Mongo.Collection('pieces', {connection: instance.connections[hostname]});
       if (userId.constructor === Array) {
         if (Session.get("piecesLimitBy") === "date") {
           instance.subscriptions[hostname] = instance.connections[hostname].subscribe("pieceMultiUserPostsByDate", userId, Session.get("piecesLimitByDate"));
