@@ -17,12 +17,16 @@
 </template>
 
 <template name="private">
-  {{> clonesWrapper}}
+  <div class="row">
+    {{> clonesWrapper}}
+  </div>
 </template>
 
 <template name="public">
-  {{> Template.dynamic template=subForm}}
-  {{> Template.dynamic template=publicContent}}
+  <div class="row">
+    {{> Template.dynamic template=subForm}}
+    {{> Template.dynamic template=publicContent}}
+  </div>
 </template>
 
 <template name="navbar">

@@ -1,40 +1,36 @@
 <template name="previewForm">
-  <div class="row">
-    <form id="subscribe" class="form-inline">
-      <div class="form-group">
-        <label class="sr-only" for="url">URL</label>
-        <input type="text" class="form-control" id="url" name="url" placeholder="URL" required>
-      </div>
-      <div class="form-group">
-        <label class="sr-only" for="userId">User ID</label>
-        <input type="text" class="form-control" id="userId" name="userId" placeholder="User ID" required>
-      </div>
-      <button type="submit" class="btn btn-primary">Preview</button>
-    </form>
-    <div class="hr"></div>
-  </div>
+  <form id="subscribe" class="form-inline">
+    <div class="form-group">
+      <label class="sr-only" for="url">URL</label>
+      <input type="text" class="form-control" id="url" name="url" placeholder="URL" required>
+    </div>
+    <div class="form-group">
+      <label class="sr-only" for="userId">User ID</label>
+      <input type="text" class="form-control" id="userId" name="userId" placeholder="User ID" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Preview</button>
+  </form>
+  <div class="hr"></div>
 </template>
 
 <template name="followForm">
-  <div class="row">
-    <form id="subscribe" class="form-inline">
-      <div class="form-group">
-        <label class="sr-only" for="url">URL</label>
-        <input type="text" class="form-control" id="url" name="url" placeholder="{{URL}}" disabled>
-      </div>
-      <div class="form-group">
-        <label class="sr-only" for="userId">User ID</label>
-        <input type="text" class="form-control" id="userId" name="userId" placeholder="{{userId}}" disabled>
-      </div>
+  <form id="subscribe" class="form-inline">
+    <div class="form-group">
+      <label class="sr-only" for="url">URL</label>
+      <input type="text" class="form-control" id="url" name="url" placeholder="{{URL}}" disabled>
+    </div>
+    <div class="form-group">
+      <label class="sr-only" for="userId">User ID</label>
+      <input type="text" class="form-control" id="userId" name="userId" placeholder="{{userId}}" disabled>
+    </div>
 
-      {{#if currentUser}}
-        {{> followButton}}
-      {{else}}
-        <button type="button" class="btn btn-primary" disabled>Please sign in ↖</button>
-      {{/if}}
-    </form>
-    <div class="hr"></div>
-  </div>
+    {{#if currentUser}}
+      {{> followButton}}
+    {{else}}
+      <button type="button" class="btn btn-primary" disabled>Please sign in ↖</button>
+    {{/if}}
+  </form>
+  <div class="hr"></div>
 </template>
 
 <template name="followButton">
@@ -50,23 +46,21 @@
 </template>
 
 <template name="readerPieces">
-  <div class="row">
-    {{#unless observationIsDone}}
-      {{> readerPiecesProgress percentage=percentage}}
-    {{/unless}}
+  {{#unless observationIsDone}}
+    {{> readerPiecesProgress percentage=percentage}}
+  {{/unless}}
 
-    {{#if hasPiece}}
-      {{#each piece in pieces}}
-        {{> readerPiece piece=piece}}
-      {{/each}}
+  {{#if hasPiece}}
+    {{#each piece in pieces}}
+      {{> readerPiece piece=piece}}
+    {{/each}}
 
-      {{> readerPiecesReadMoreButton}}
-    {{else}}
-      <ul class="list-group">
-        <li class="list-group-item">Fetching pieces...</li>
-      </ul>
-    {{/if}}
-  </div>
+    {{> readerPiecesReadMoreButton}}
+  {{else}}
+    <ul class="list-group">
+      <li class="list-group-item">Fetching pieces...</li>
+    </ul>
+  {{/if}}
 </template>
 
 <template name="readerPiecesProgress">
@@ -231,11 +225,9 @@
 </template>
 
 <template name="followingSubs">
-  <div class="row">
-    {{#each sub in subs}}
-      {{> followingSub sub=sub}}
-    {{/each}}
-  </div>
+  {{#each sub in subs}}
+    {{> followingSub sub=sub}}
+  {{/each}}
 </template>
 
 <template name="followingSub">
@@ -272,13 +264,11 @@
       {{/if}}
     </ul>
     <div class="hr"></div>
-  </div>
-  {{#if showButton}}
-    <div class="row">
+    {{#if showButton}}
       <button type="button" class="btn btn-primary-outline btn-block" data-action="more" {{disabled}}>Read More</button>
       <div class="hr"></div>
-    </div>
-  {{/if}}
+    {{/if}}
+  </div>
 </template>
 
 <template name="previewPieceContent">
@@ -296,32 +286,26 @@
 </template>
 
 <template name="demoPieces">
-  <div class="row">
-    <div class="jumbotron">
-      <h1 class="display-2">Welcome to Piece Reader.</h1>
-      <p class="lead">Each piece is a message. You can preview pieces with top form &#8593;.</p>
-      <p>Below &#8595; is Piece's official pieces, for demonstration.</p>
-      <p>For more, you can create an account to follow other's pieces if you know its URL and User ID. When you come back next time, Piece Reader will remember who you followed. Want to publish your own pieces? Check out <a href="https://piece.meteor.com/">Piece</a>.</p>
-    </div>
+  <div class="jumbotron">
+    <h1 class="display-2">Welcome to Piece Reader.</h1>
+    <p class="lead">Each piece is a message. You can preview pieces with top form &#8593;.</p>
+    <p>Below &#8595; is Piece's official pieces, for demonstration.</p>
+    <p>For more, you can create an account to follow other's pieces if you know its URL and User ID. When you come back next time, Piece Reader will remember who you followed. Want to publish your own pieces? Check out <a href="https://piece.meteor.com/">Piece</a>.</p>
   </div>
 
-  <div class="row">
-    {{#if hasPiece}}
-      {{#each piece in pieces}}
-        {{> readerPiece piece=piece}}
-      {{/each}}
-    {{else}}
-      <ul class="list-group">
-        <li class="list-group-item">Fetching demo pieces...</li>
-      </ul>
-    {{/if}}
-  </div>
+  {{#if hasPiece}}
+    {{#each piece in pieces}}
+      {{> readerPiece piece=piece}}
+    {{/each}}
+  {{else}}
+    <ul class="list-group">
+      <li class="list-group-item">Fetching demo pieces...</li>
+    </ul>
+  {{/if}}
 </template>
 
 <template name="signIn">
-  <div class="row">
-    <ul class="list-group">
-      <li class="list-group-item">Please sign in ↖</li>
-    </ul>
-  </div>
+  <ul class="list-group">
+    <li class="list-group-item">Please sign in ↖</li>
+  </ul>
 </template>
