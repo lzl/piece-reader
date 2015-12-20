@@ -244,7 +244,7 @@ Template.followingSubDetail.onCreated(function () {
 Template.followingSubDetail.helpers({
   username() {
     const instance = Template.instance();
-    return instance.state.get('username');
+    return instance.state.get('username') || '...';
   },
   updatedAt() {
     const instance = Template.instance();
