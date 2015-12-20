@@ -536,6 +536,15 @@ Template.piecesWrapper.onCreated(function () {
   instance.observationIsDone = () => {
     return instance.state.get('observedHostNum') === instance.state.get('totalHostNum');
   }
+
+  instance.autorun(() => {
+    if (instance.state.get('observedHostNum') === instance.state.get('totalHostNum')) {
+      if (! LocalPieces.findOne()) {
+        console.info("there is no piece today, changed to limit by number");
+        Session.set('piecesLimitBy', 'number');
+      }
+    }
+  })
 })
 Template.piecesWrapper.onDestroyed(function () {
   return LocalPieces.remove({});
@@ -754,13 +763,13 @@ Template.readerPiecesReadMoreButton.events({
   'click [data-action=more]': (event, instance) => {
     Session.set("piecesLocalCount", LocalPieces.find().count());
     if (Session.get("piecesLocalCount") < 20) {
-      console.log("changed: to limit by number");
+      console.info("there are less than 20 pieces today, changed to limit by number");
       Session.set("piecesLimitBy", "number");
     } else if (Session.get("piecesLimitBy") === "date") {
-      console.log("more: limit by date");
+      console.info("load more: 1 day");
       Session.set("piecesLimitByDate", (function(d){d.setDate(d.getDate()-1); return d;})(Session.get("piecesLimitByDate")));
     } else {
-      console.log("more: limit by number");
+      console.info("load more: 20 pieces");
       Session.set("piecesLimitByNumber", Session.get("piecesLimitByNumber") + 20);
     }
   }
