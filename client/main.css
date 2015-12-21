@@ -11,10 +11,23 @@
 .progress {
   margin-bottom: 0;
 }
+.pointer {
+  cursor: pointer;
+}
+
 .top-fixed {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
+  z-index: 1;
+}
+.alert-top-fixed {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  width: 200px;
+  margin: 0 0 0 -100px;
+  padding: 0 15px;
   z-index: 1;
 }

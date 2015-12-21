@@ -32,5 +32,6 @@ kadira:flow-router
 kadira:blaze-layout
 zimme:active-route
 mizzao:timesync
+webtempest:animate
 
 # meteortoys:allthings

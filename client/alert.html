@@ -1,0 +1,19 @@
+<template name="alerts">
+  {{#transition in="fadeIn" out="fadeOut"}}
+    {{> alertNewPieceWrapper}}
+  {{/transition}}
+</template>
+
+<template name="alertNewPiece">
+  <a class="alert-link pointer" data-action="refresh">
+    <div class="alert alert-info alert-top-fixed" role="alert">
+      <p class="text-xs-center">{{text}}</p>
+    </div>
+  </a>
+</template>
+
+<template name="alertNewPieceWrapper">
+  {{#if hasPiece}}
+    {{> alertNewPiece count=count}}
+  {{/if}}
+</template>
