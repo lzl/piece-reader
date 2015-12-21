@@ -416,6 +416,7 @@ Template.piecesWrapper.onCreated(function () {
   Session.setDefault("piecesLimitBy", "date");
   Session.setDefault("piecesLimitByDate", (function(d){d.setDate(d.getDate()-1); return d;})(new Date));
   Session.setDefault("piecesLimitByNumber", 20);
+  Session.setDefault('lastestRefreshTimestamp', new Date());
   const instance = this;
   instance.state = new ReactiveDict();
   instance.connections = Object.create(null);
@@ -528,7 +529,8 @@ Template.piecesWrapper.onCreated(function () {
     return LocalPieces.findOne();
   }
   instance.pieces = () => {
-    return LocalPieces.find({}, {sort: {createdAt: -1}});
+    const timestamp = Session.get('lastestRefreshTimestamp');
+    return LocalPieces.find({createdAt: {$lte: timestamp}}, {sort: {createdAt: -1}});
   }
   instance.percentage = () => {
     return instance.state.get('observedHostNum') / instance.state.get('totalHostNum') * 100;
