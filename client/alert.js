@@ -37,6 +37,10 @@ Template.alertNewPiece.events({
   'click [data-action=refresh]': (event, instance) => {
     event.preventDefault();
     Session.set('lastestRefreshTimestamp', new Date());
-    $("html, body").animate({ scrollTop: 0 }, "slow");
+    if (FlowRouter.current().route.name === 'reader') {
+      $("html, body").animate({ scrollTop: 0 }, "slow");
+    } else {
+      FlowRouter.go('/');
+    }
   }
 })
