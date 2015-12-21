@@ -14,6 +14,11 @@
 .pointer {
   cursor: pointer;
 }
+.pointer-icon {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAfUlEQVQ4T9WTSxLAIAhD8eTCydtJp3T8ELTd1aWGJyFDEXJU9VDVwt79PhSguNYqZiYryA8A8JrZWFrwWTDQNoCBXgPGdB4Aomszh5CdNt4O4EUQfALgx6zQOwo7uKd82VhBKMAhu+1DP6Xgw2SQcT/SGMcUouWigGTNu5oTXyJ/EV9DZ/kAAAAASUVORK5CYII=');
+  background-position: 100% 50%;
+  background-repeat: no-repeat;
+}
 
 .top-fixed {
   position: fixed;
