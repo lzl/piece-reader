@@ -1,7 +1,9 @@
 <template name="alerts">
-  {{#transition in="fadeIn" out="fadeOut"}}
-    {{> alertNewPieceWrapper}}
-  {{/transition}}
+  <div class="row">
+    {{#transition in="fadeIn" out="fadeOut"}}
+      {{> alertNewPieceWrapper}}
+    {{/transition}}
+  </div>
 </template>
 
 <template name="alertNewPiece">
@@ -16,4 +18,13 @@
   {{#if hasPiece}}
     {{> alertNewPiece count=count}}
   {{/if}}
+</template>
+
+<template name="alertOldPiecesBelow">
+  <div class="alert alert-info alert-dismissible fade in" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    <p>Below are the pieces you had viewed.</p>
+  </div>
 </template>

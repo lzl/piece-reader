@@ -36,6 +36,9 @@ Template.alertNewPiece.helpers({
 Template.alertNewPiece.events({
   'click [data-action=refresh]': (event, instance) => {
     event.preventDefault();
+    const cloneId = Session.get('currentCloneId');
+    const lastestRefreshTimestamp = Session.get('lastestRefreshTimestamp');
+    Meteor.call('updateCloneCheckinAt', cloneId, lastestRefreshTimestamp);
     Session.set('lastestRefreshTimestamp', new Date());
     if (FlowRouter.current().route.name === 'reader') {
       $("html, body").animate({ scrollTop: 0 }, "slow");

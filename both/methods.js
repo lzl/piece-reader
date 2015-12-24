@@ -136,5 +136,21 @@ Meteor.methods({
     } else {
       throw new Meteor.Error("not-authorized", "You don't own that clone.");
     }
+  },
+  updateCloneCheckinAt(cloneId, timestamp) {
+    check(cloneId, String);
+    check(timestamp, Date);
+
+    const userId = Meteor.userId();
+    if (! userId) {
+      throw new Meteor.Error("not-authorized", "Log in before update clone.");
+    }
+
+    const ownedClone = Clones.findOne({_id: cloneId, ownerId: userId});
+    if (ownedClone) {
+      Clones.update({_id: cloneId, ownerId: userId}, {$set: {checkinAt: timestamp}});
+    } else {
+      throw new Meteor.Error("not-authorized", "You don't own that clone.");
+    }
   }
 });
