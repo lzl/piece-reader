@@ -47,3 +47,22 @@ Template.alertNewPiece.events({
     }
   }
 })
+
+Template.alertOldPiecesBelow.events({
+  'click [data-action=markAllAsRead]': (event, instance) => {
+    event.preventDefault();
+    const cloneId = Session.get('currentCloneId');
+    const lastestRefreshTimestamp = Session.get('lastestRefreshTimestamp');
+    const defaultDate = () => {
+      const date = new Date();
+      date.setDate(date.getDate() - 1);
+      return date;
+    }
+    const checkinAt = Clones.findOne(cloneId).checkinAt || defaultDate();
+    const newPieces = LocalPieces.find({createdAt: {$lte: lastestRefreshTimestamp, $gt: checkinAt}}).fetch();
+    if (newPieces.length === 0) return;
+    const createdAt = _.pluck(newPieces, 'createdAt');
+    const lastestPieceCreatedAt = _.max(createdAt);
+    Meteor.call('updateCloneCheckinAt', cloneId, lastestPieceCreatedAt);
+  }
+})
