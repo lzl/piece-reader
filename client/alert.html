@@ -25,6 +25,11 @@
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
-    <p>Below are the pieces you had read. <a class="alert-link pointer" data-action="markAllAsRead">Mark all above pieces as read.</a></p>
+    <p>
+      Below are the pieces you had read.
+      {{#if hasNewPieces}}
+        <a class="alert-link pointer" data-action="markAllAsRead">Mark all above pieces as read.</a>
+      {{/if}}
+    </p>
   </div>
 </template>

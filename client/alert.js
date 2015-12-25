@@ -48,6 +48,21 @@ Template.alertNewPiece.events({
   }
 })
 
+Template.alertOldPiecesBelow.helpers({
+  hasNewPieces() {
+    const instance = Template.instance();
+    const cloneId = Session.get('currentCloneId');
+    const lastestRefreshTimestamp = Session.get('lastestRefreshTimestamp');
+    const defaultDate = () => {
+      const date = new Date();
+      date.setDate(date.getDate() - 1);
+      return date;
+    }
+    const checkinAt = Clones.findOne(cloneId).checkinAt || defaultDate();
+    const newPieces = LocalPieces.find({createdAt: {$lte: lastestRefreshTimestamp, $gt: checkinAt}}).fetch();
+    return newPieces.length > 0;
+  }
+})
 Template.alertOldPiecesBelow.events({
   'click [data-action=markAllAsRead]': (event, instance) => {
     event.preventDefault();
