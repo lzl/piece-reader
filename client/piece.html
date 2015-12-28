@@ -3,7 +3,7 @@
     {{piece.owner}}
     <small class="text-muted">· {{createdFromNow piece.createdAt}}</small>
   </p>
-  <p class="card-text js-content">
+  <p class="card-text word-wrap js-content">
     {{piece.content}}
   </p>
 </template>
@@ -18,7 +18,7 @@
   </p>
 
   {{#if piece.comment}}
-  <p class="card-text js-content">
+  <p class="card-text word-wrap js-content">
     {{piece.comment}}
   </p>
   {{/if}}
@@ -28,7 +28,7 @@
       {{piece.origin.owner}}
       <small class="text-muted">· {{createdFromNow piece.origin.createdAt}}</small>
     </p>
-    <p class="card-text js-content">
+    <p class="card-text word-wrap js-content">
       {{piece.origin.content}}
     </p>
   </div>
@@ -36,7 +36,7 @@
 
 <template name="previewPieceTypeIsPlaintext">
   <li class="list-group-item">
-    <span class="js-content">{{piece.owner}}: {{piece.content}}</span>
+    <span class="word-wrap js-content">{{piece.owner}}: {{piece.content}}</span>
     <small class="text-muted pull-right">{{createdFromNow piece.createdAt}}</small>
   </li>
 </template>
@@ -47,7 +47,7 @@
 <template name="previewPieceTypeIsSharismPiece">
   <li class="list-group-item">
     <span class="content">{{piece.owner}}: {{piece.comment}} »</span>
-    <span class="text-muted js-content">{{piece.origin.owner}}: {{piece.origin.content}}</span>
+    <span class="text-muted word-wrap js-content">{{piece.origin.owner}}: {{piece.origin.content}}</span>
     <small class="text-muted pull-right">{{createdFromNow piece.createdAt}}</small>
   </li>
 </template>
