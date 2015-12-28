@@ -36,3 +36,7 @@
   padding: 0 15px;
   z-index: 1;
 }
+
+.text-muted a {
+  color: #4280B5;
+}
