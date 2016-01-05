@@ -3,6 +3,10 @@
     "piece": {
       "url": "http://localhost:3000"
     },
-    "protocol": "http"
+    "protocol": "http",
+    "demo": {
+      "hostname": "localhost:3000",
+      "userId": "AH4KDMYvjS2sHSu7p"
+    }
   }
 }

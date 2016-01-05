@@ -167,8 +167,8 @@ Template.previewForm.events({
 
 Template.demoPieces.onCreated(function () {
   const instance = this;
-  const hostname = "piece.meteor.com";
-  const userId = "Eqrz7jo3YcMeabNdg";
+  const hostname = Meteor.settings.public.demo.hostname;
+  const userId = Meteor.settings.public.demo.userId;
   previewViaForm(instance, hostname, userId);
 })
 Template.demoPieces.helpers({

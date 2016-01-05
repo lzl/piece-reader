@@ -3,6 +3,10 @@
     "piece": {
       "url": "https://piece.meteor.com"
     },
-    "protocol": "https"
+    "protocol": "https",
+    "demo": {
+      "hostname": "piece.meteor.com",
+      "userId": "Eqrz7jo3YcMeabNdg"
+    }
   }
 }

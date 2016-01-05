@@ -17,9 +17,9 @@
     <small class="text-muted">shared · {{createdFromNow piece.createdAt}}</small>
   </p>
 
-  {{#if piece.comment}}
+  {{#if piece.content}}
   <p class="card-text word-wrap js-content">
-    {{piece.comment}}
+    {{piece.content}}
   </p>
   {{/if}}
 
@@ -46,7 +46,7 @@
 
 <template name="previewPieceTypeIsSharismPiece">
   <li class="list-group-item">
-    <span class="content">{{piece.owner}}: {{piece.comment}} »</span>
+    <span class="content">{{piece.owner}}: {{piece.content}} »</span>
     <span class="text-muted word-wrap js-content">{{piece.origin.owner}}: {{piece.origin.content}}</span>
     <small class="text-muted pull-right">{{createdFromNow piece.createdAt}}</small>
   </li>

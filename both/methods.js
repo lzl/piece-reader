@@ -125,7 +125,7 @@ Meteor.methods({
       Clones.update({_id: cloneId, ownerId: userId}, {$set: {updatedAt: timestamp}});
       return Pieces.insert({
         type: "sharism-piece",
-        comment: comment,
+        content: comment,
         origin: piece,
         owner: ownedClone.name,
         ownerId: ownedClone._id,
