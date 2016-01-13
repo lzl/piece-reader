@@ -27,12 +27,8 @@
 <template name="followForm">
   <form id="subscribe" class="form-inline">
     <div class="form-group">
-      <label class="sr-only" for="url">URL</label>
-      <input type="text" class="form-control" id="url" name="url" placeholder="{{URL}}" disabled>
-    </div>
-    <div class="form-group">
-      <label class="sr-only" for="userId">User ID</label>
-      <input type="text" class="form-control" id="userId" name="userId" placeholder="{{userId}}" disabled>
+      <label class="sr-only" for="url">Address</label>
+      <input type="text" class="form-control" id="url" name="url" value="{{address}}" size="{{length}}" readonly>
     </div>
 
     {{#if currentUser}}

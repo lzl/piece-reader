@@ -367,13 +367,24 @@ Template.previewPieceContent.helpers({
   }
 })
 
+Template.followForm.onCreated(function () {
+  const instance = this;
+  instance.state = new ReactiveDict;
+  instance.state.setDefault('addressLength', 30);
+})
 Template.followForm.helpers({
-  URL() {
+  address() {
     const protocol = Meteor.settings.public.protocol;
-    return protocol + "://" + FlowRouter.getQueryParam("hostname");
+    const hostname = FlowRouter.getQueryParam("hostname");
+    const userId = FlowRouter.getQueryParam("userId");
+    const address = `${protocol}://${hostname}/c/${userId}`;
+    const instance = Template.instance();
+    instance.state.set('addressLength', address.length);
+    return address;
   },
-  userId() {
-    return FlowRouter.getQueryParam("userId");
+  length() {
+    const instance = Template.instance();
+    return instance.state.get('addressLength');
   }
 })
 
