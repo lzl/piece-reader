@@ -16,8 +16,8 @@
 <template name="previewForm">
   <form id="subscribe" class="form-inline">
     <div class="form-group">
-      <label class="sr-only" for="url">URL</label>
-      <input type="text" class="form-control" id="url" name="url" placeholder="URL" size="{{length}}" required>
+      <label class="sr-only" for="url">Address</label>
+      <input type="text" class="form-control" id="url" name="url" placeholder="Address" size="{{length}}" required>
     </div>
     <button type="submit" class="btn btn-primary">Preview</button>
   </form>
@@ -47,12 +47,12 @@
 <template name="followButton">
   {{#if following}}
     {{#if unfollow}}
-      <button type="button" class="btn btn-danger" data-action="unfollow">Unfollow</button>
+      <button type="button" class="btn btn-danger btn-follow" data-action="unfollow">Unfollow</button>
     {{else}}
-      <button type="button" class="btn btn-primary" data-action="following">Following</button>
+      <button type="button" class="btn btn-primary btn-follow" data-action="following">Following</button>
     {{/if}}
   {{else}}
-    <button type="button" class="btn btn-primary" data-action="follow">Follow</button>
+    <button type="button" class="btn btn-primary btn-follow" data-action="follow">Follow</button>
   {{/if}}
 </template>
 
@@ -132,11 +132,13 @@
           <h4 class="modal-title" id="readerPieceDetail">The detail of this piece.</h4>
         </div>
         <div class="modal-body">
-          <p class="card-text">Username: {{piece.owner}}</p>
           <p class="card-text">
-            <span>URL: <code>https://{{piece.hostname}}</code></span>
+            <span>Username: {{piece.owner}}</span>
             <br>
-            <span>User ID: <code>{{piece.ownerId}}</code></span>
+            <span>
+              Address: <code id="address-{{piece._id}}">https://{{piece.hostname}}/c/{{piece.ownerId}}</code>
+              <button type="button" class="btn btn-secondary btn-sm address-{{piece.ownerId}}" data-clipboard-target="#address-{{piece._id}}" data-toggle="tooltip" data-placement="top" title="Copy to clipboard">Copy</button>
+            </span>
           </p>
           <p class="card-text">
             <span>Piece ID: <code>{{piece._id}}</code></span>
@@ -179,12 +181,12 @@
 <template name="readerPieceDetailFollowButton">
   {{#if following}}
     {{#if unfollow}}
-      <button type="button" class="btn btn-danger" data-action="unfollow">Unfollow</button>
+      <button type="button" class="btn btn-danger btn-follow" data-action="unfollow">Unfollow</button>
     {{else}}
-      <button type="button" class="btn btn-primary" data-action="following">Following</button>
+      <button type="button" class="btn btn-primary btn-follow" data-action="following">Following</button>
     {{/if}}
   {{else}}
-    <button type="button" class="btn btn-primary" data-action="follow">Follow</button>
+    <button type="button" class="btn btn-primary btn-follow" data-action="follow">Follow</button>
   {{/if}}
 </template>
 

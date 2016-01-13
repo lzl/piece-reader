@@ -715,6 +715,20 @@ Template.readerPieceShare.events({
   }
 })
 
+Template.readerPieceDetail.onRendered(function () {
+  const instance = this;
+  const button = '.address-' + instance.data.piece.ownerId;
+  $(button).tooltip();
+  const clipboard = new Clipboard(button);
+  clipboard.on('success', function(e) {
+    $(e.trigger).attr("title", "Copied!").tooltip("_fixTitle").tooltip("show").attr("title", "Copy to clipboard").tooltip("_fixTitle"), e.clearSelection();
+  });
+
+  clipboard.on('error', function(e) {
+    const title = /Mac/i.test(navigator.userAgent) ? "Press ⌘-C to copy" : "Press Ctrl-C to copy";
+    $(e.trigger).attr("title", title).tooltip("_fixTitle").tooltip("show").attr("title", "Copy to clipboard").tooltip("_fixTitle");
+  });
+})
 Template.readerPieceDetail.helpers({
   modalId() {
     const instance = Template.instance();

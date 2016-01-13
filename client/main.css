@@ -58,3 +58,7 @@
   -webkit-hyphens: auto;
   hyphens: auto;
 }
+
+.btn-follow {
+  width: 100px;
+}
