@@ -136,32 +136,79 @@ Template.status.helpers({
   }
 })
 
+// Template.previewForm.onRendered(function () {
+//   $("#subscribe").validate({
+//     rules: {
+//       url: {
+//         required: true,
+//         url: true
+//       },
+//       userId: {
+//         required: true,
+//         rangelength: [17, 17]
+//       }
+//     },
+//     messages: {
+//       userId: {
+//         rangelength: "Please enter a valid user ID."
+//       }
+//     }
+//   });
+// });
+// Template.previewForm.events({
+//   'submit form': function (event, instance) {
+//     event.preventDefault();
+//     const url = instance.find("[name='url']").value;
+//     const hostname = hostnameParse(url).toLowerCase();
+//     const userId = instance.find("[name='userId']").value;
+//     FlowRouter.go(`/follow?hostname=${hostname}&userId=${userId}`);
+//   }
+// });
 Template.previewForm.onRendered(function () {
   $("#subscribe").validate({
     rules: {
       url: {
         required: true,
         url: true
-      },
-      userId: {
-        required: true,
-        rangelength: [17, 17]
-      }
-    },
-    messages: {
-      userId: {
-        rangelength: "Please enter a valid user ID."
       }
     }
   });
 });
+Template.previewForm.onCreated(function () {
+  const instance = this;
+  instance.state = new ReactiveDict();
+  instance.state.setDefault('inputLength', 30);
+});
+Template.previewForm.helpers({
+  length() {
+    const instance = Template.instance();
+    return instance.state.get('inputLength');
+  }
+});
 Template.previewForm.events({
-  'submit form': function (event, instance) {
+  'submit form': (event, instance) => {
     event.preventDefault();
-    const url = instance.find("[name='url']").value;
-    const hostname = hostnameParse(url).toLowerCase();
-    const userId = instance.find("[name='userId']").value;
-    FlowRouter.go(`/follow?hostname=${hostname}&userId=${userId}`);
+    let hostname = instance.find("[name='url']").value;
+    const parser = document.createElement('a');
+    parser.href = hostname;
+    hostname = parser.host;
+    const pathname = parser.pathname;
+    const type = pathname.substr(1, 1);
+    const userId = pathname.substr(3, 17);
+    if (type === "c" && userId.length === 17) {
+      FlowRouter.go(`/follow?hostname=${hostname}&userId=${userId}`);
+    } else {
+      alert("Please enter a valid user ID.");
+    }
+  },
+  'keyup [name=url]': (event, instance) => {
+    event.preventDefault();
+    const length = instance.find("[name='url']").value.length;
+    if (length > 30) {
+      instance.state.set('inputLength', length);
+    } else {
+      instance.state.set('inputLength', 30);
+    }
   }
 });
 
