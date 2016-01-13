@@ -572,31 +572,12 @@ Template.piecesWrapper.onCreated(function () {
     console.log('totalHostNum', instance.state.get('totalHostNum'))
   })
 
-  instance.autorun(() => {
-    const defaultDate = () => {
-      const date = new Date();
-      date.setDate(date.getDate() - 1);
-      return date;
-    }
-    const checkinAt = Clones.findOne(Session.get("currentCloneId")).checkinAt || defaultDate();
-    instance.state.set('checkinAt', checkinAt);
-  })
-
   instance.hasPiece = () => {
     return LocalPieces.findOne();
   }
-  instance.hasOldPiece = () => {
-    const checkinAt = instance.state.get('checkinAt');
-    return LocalPieces.findOne({createdAt: {$lte: checkinAt}});
-  }
-  instance.newPieces = () => {
-    const lastestRefreshTimestamp = Session.get('lastestRefreshTimestamp');
-    const checkinAt = instance.state.get('checkinAt');
-    return LocalPieces.find({createdAt: {$lte: lastestRefreshTimestamp, $gt: checkinAt}}, {sort: {createdAt: -1}});
-  }
   instance.oldPieces = () => {
-    const checkinAt = instance.state.get('checkinAt');
-    return LocalPieces.find({createdAt: {$lte: checkinAt}}, {sort: {createdAt: -1}});
+    const lastestRefreshTimestamp = Session.get('lastestRefreshTimestamp');
+    return LocalPieces.find({createdAt: {$lte: lastestRefreshTimestamp}}, {sort: {createdAt: -1}});
   }
   instance.percentage = () => {
     return instance.state.get('observedHostNum') / instance.state.get('totalHostNum') * 100;
@@ -623,9 +604,7 @@ Template.piecesWrapper.helpers({
     return {
       data: instance.data,
       hasPiece: instance.hasPiece,
-      hasOldPiece: instance.hasOldPiece,
       oldPieces: instance.oldPieces,
-      newPieces: instance.newPieces,
       percentage: instance.percentage,
       observationIsDone: instance.observationIsDone
     }

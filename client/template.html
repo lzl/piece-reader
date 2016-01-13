@@ -62,17 +62,9 @@
   {{/unless}}
 
   {{#if hasPiece}}
-    {{#each piece in newPieces}}
+    {{#each piece in oldPieces}}
       {{> readerPiece piece=piece}}
     {{/each}}
-
-    {{#if hasOldPiece}}
-      {{> alertOldPiecesBelow}}
-
-      {{#each piece in oldPieces}}
-        {{> readerPiece piece=piece}}
-      {{/each}}
-    {{/if}}
 
     {{> readerPiecesReadMoreButton}}
   {{else}}
