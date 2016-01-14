@@ -36,8 +36,8 @@
 
 <template name="previewPieceTypeIsPlaintext">
   <li class="list-group-item">
-    <span class="word-wrap js-content">{{piece.content}}</span>
     <small class="text-muted pull-right">{{createdFromNow piece.createdAt}}</small>
+    <span class="word-wrap js-content">{{piece.content}}</span>
   </li>
 </template>
 
@@ -46,12 +46,12 @@
 
 <template name="previewPieceTypeIsSharismPiece">
   <li class="list-group-item">
+    <small class="text-muted pull-right">{{createdFromNow piece.createdAt}}</small>
     {{#if piece.content}}
       <span class="word-wrap js-content">{{piece.content}} »</span>
     {{else}}
       <span>»</span>
     {{/if}}
     <span class="text-muted word-wrap js-content">{{piece.origin.owner}}: {{piece.origin.content}}</span>
-    <small class="text-muted pull-right">{{createdFromNow piece.createdAt}}</small>
   </li>
 </template>
