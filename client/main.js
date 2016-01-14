@@ -745,6 +745,12 @@ Template.readerPieceDetail.helpers({
     const instance = Template.instance();
     const modalId = instance.data.piece._id;
     return `detail-${modalId}`;
+  },
+  address() {
+    const instance = Template.instance();
+    const piece = instance.data.piece;
+    const protocol = Meteor.settings.public.protocol;
+    return `${protocol}://${piece.hostname}/c/${piece.ownerId}`;
   }
 })
 Template.readerPieceDetail.events({

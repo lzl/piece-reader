@@ -132,8 +132,8 @@
             <span>Username: {{piece.owner}}</span>
             <br>
             <span>
-              Address: <code id="address-{{piece._id}}">https://{{piece.hostname}}/c/{{piece.ownerId}}</code>
-              <button type="button" class="btn btn-secondary btn-sm address-{{piece.ownerId}}" data-clipboard-target="#address-{{piece._id}}" data-toggle="tooltip" data-placement="top" title="Copy to clipboard">Copy</button>
+              Address: <code class="js-address-{{piece._id}}">{{address}}</code>
+              <button type="button" class="btn btn-secondary btn-sm address-{{piece.ownerId}}" data-clipboard-target=".js-address-{{piece._id}}" data-toggle="tooltip" data-placement="top" title="Copy to clipboard">Copy</button>
             </span>
           </p>
           <p class="card-text">
