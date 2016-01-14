@@ -311,38 +311,46 @@ Template.previewPieces.onCreated(function () {
   // previewViaForm(instance, hostname, userId, instance.state.get('wantPiecesCount'));
   const protocol = Meteor.settings.public.protocol;
   instance.connection = DDP.connect(`${protocol}://${hostname}`);
-  instance.collection = new Mongo.Collection('pieces', {connection: instance.connection});
+  instance['collection.pieces'] = new Mongo.Collection('pieces', {connection: instance.connection});
   instance.autorun(() => {
     const limit = instance.state.get('wantPiecesCount');
-    instance.subscription = instance.connection.subscribe("pieceSingleClonePosts", userId, limit);
+    instance['subscription.posts'] = instance.connection.subscribe("pieceSingleClonePosts", userId, limit);
+  });
+  instance['collection.clones'] = new Mongo.Collection('clones', {connection: instance.connection});
+  instance.autorun(() => {
+    instance['subscription.profile'] = instance.connection.subscribe("pieceSingleCloneProfile", userId);
   });
 })
 Template.previewPieces.helpers({
   hasPiece() {
     const instance = Template.instance();
-    return instance.collection.findOne();
+    return instance['collection.pieces'].findOne();
   },
   pieces() {
     const instance = Template.instance();
     const userId = FlowRouter.getQueryParam("userId");
-    return instance.collection.find({ownerId: userId}, {sort: {createdAt: -1}});
+    return instance['collection.pieces'].find({ownerId: userId}, {sort: {createdAt: -1}});
   },
   showButton() {
     const instance = Template.instance();
     const userId = FlowRouter.getQueryParam("userId");
-    const hasPiecesCount = instance.collection.find({ownerId: userId}).count();
+    const hasPiecesCount = instance['collection.pieces'].find({ownerId: userId}).count();
     return hasPiecesCount >= 20;
   },
   disabled() {
     const instance = Template.instance();
     const userId = FlowRouter.getQueryParam("userId");
-    const hasPiecesCount = instance.collection.find({ownerId: userId}).count();
+    const hasPiecesCount = instance['collection.pieces'].find({ownerId: userId}).count();
     const wantPiecesCount = instance.state.get('wantPiecesCount');
     if (hasPiecesCount < wantPiecesCount) {
       return 'disabled';
     } else {
       return '';
     }
+  },
+  profile() {
+    const instance = Template.instance();
+    return instance['collection.clones'].findOne();
   }
 })
 Template.previewPieces.events({

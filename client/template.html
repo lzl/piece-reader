@@ -262,10 +262,13 @@
 </template>
 
 <template name="previewPieces">
-  {{#if hasPiece}}
+  {{#if profile}}
     <div class="row">
       <ul class="list-group">
-        <li class="list-group-item">Username: {{hasPiece.owner}}</li>
+        <li class="list-group-item">
+          <span>{{profile.name}}</span>
+          <small class="text-muted pull-right">{{updatedFromNow profile.updatedAt}}</small>
+        </li>
       </ul>
       <div class="hr"></div>
     </div>
