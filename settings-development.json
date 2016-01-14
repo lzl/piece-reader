@@ -7,6 +7,9 @@
     "demo": {
       "hostname": "localhost:3000",
       "userId": "AH4KDMYvjS2sHSu7p"
+    },
+    "feature": {
+      "share": true
     }
   }
 }

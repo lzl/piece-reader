@@ -651,6 +651,9 @@ Template.readerPieceButton.helpers({
     const piece = Template.instance().data.piece;
     return piece.type.indexOf('sharism') > -1;
   },
+  shareDisabled() {
+    return Meteor.settings.public.feature.share ? '' : 'disabled';
+  }
 })
 
 Template.readerPieceButton.events({
@@ -759,6 +762,12 @@ Template.readerPieceDetail.helpers({
     const piece = instance.data.piece;
     const protocol = Meteor.settings.public.protocol;
     return `${protocol}://${piece.hostname}/c/${piece.ownerId}`;
+  },
+  originAddress() {
+    const instance = Template.instance();
+    const piece = instance.data.piece;
+    const protocol = Meteor.settings.public.protocol;
+    return `${protocol}://${piece.origin.hostname}/c/${piece.origin.ownerId}`;
   }
 })
 Template.readerPieceDetail.events({

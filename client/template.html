@@ -106,7 +106,7 @@
 
 <template name="readerPieceButton">
   <button type="button" class="btn btn-secondary" data-action="detail" data-toggle="modal">Detail</button>
-  <button type="button" class="btn btn-secondary" data-action="share" data-toggle="modal" disabled>Share</button>
+  <button type="button" class="btn btn-secondary" data-action="share" data-toggle="modal" {{shareDisabled}}>Share</button>
 
   {{#if typeIsSharism}}
     {{> readerPieceDetail piece=piece}}
@@ -148,11 +148,13 @@
 
           {{#if piece.origin}}
             <div class="card card-block">
-              <p class="card-text">Username: {{piece.origin.owner}}</p>
               <p class="card-text">
-                <span>URL: <code>https://{{piece.origin.hostname}}</code></span>
+                <span>Username: {{piece.origin.owner}}</span>
                 <br>
-                <span>User ID: <code>{{piece.origin.ownerId}}</code></span>
+                <span>
+                  Address: <code class="js-address-{{piece._id}}-{{piece.origin._id}}">{{originAddress}}</code>
+                  <button type="button" class="btn btn-secondary btn-sm address-{{piece.origin.ownerId}}" data-clipboard-target=".js-address-{{piece._id}}-{{piece.origin._id}}" data-toggle="tooltip" data-placement="top" title="Copy to clipboard">Copy</button>
+                </span>
               </p>
               <p class="card-text">
                 <span>Piece ID: <code>{{piece.origin._id}}</code></span>
