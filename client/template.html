@@ -262,6 +262,15 @@
 </template>
 
 <template name="previewPieces">
+  {{#if hasPiece}}
+    <div class="row">
+      <ul class="list-group">
+        <li class="list-group-item">Username: {{hasPiece.owner}}</li>
+      </ul>
+      <div class="hr"></div>
+    </div>
+  {{/if}}
+
   <div class="row">
     <ul class="list-group">
       {{#if hasPiece}}
