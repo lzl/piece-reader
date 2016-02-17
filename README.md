@@ -1,4 +1,4 @@
-This is a sub-project of [Piece](https://github.com/lzl/piece).
+# This project is merged into [Piece](https://github.com/lzl/piece).
 
 With Piece Reader, you can follow and read pieces which were published by other users.
 
